@@ -28,7 +28,7 @@ public class UserStorageInMemory implements UserStorage {
         User updatedUser = users.get(id);
         if (updates.containsKey("name")) {
             updatedUser.setName(String.valueOf(updates.get("name")));
-    }
+        }
         if (updates.containsKey("email")) {
             updatedUser.setEmail(String.valueOf(updates.get("email")));
         }
@@ -59,13 +59,13 @@ public class UserStorageInMemory implements UserStorage {
 
     @Override
     public long checkEmailExistence(String email) {
-         List<User> usersIdWithSameEmail = users.values().stream()
+        List<User> usersIdWithSameEmail = users.values().stream()
                 .filter(user -> Objects.equals(user.getEmail().toLowerCase(), email.trim().toLowerCase()))
                 .collect(Collectors.toList());
-         if (usersIdWithSameEmail.isEmpty()) {
-             return 0;
-         }  else {
-             return usersIdWithSameEmail.get(0).getId();
-         }
+        if (usersIdWithSameEmail.isEmpty()) {
+            return 0;
+        } else {
+            return usersIdWithSameEmail.get(0).getId();
+        }
     }
 }

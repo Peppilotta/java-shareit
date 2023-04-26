@@ -3,6 +3,7 @@ package ru.practicum.shareit.item.storage;
 import org.springframework.stereotype.Repository;
 import ru.practicum.shareit.item.model.Item;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -31,7 +32,7 @@ public class ItemStorageInMemory implements ItemStorage {
             item.setDescription(String.valueOf(updates.get("description")));
         }
         if (updates.containsKey("available")) {
-            item.setAvailable(Boolean.valueOf(String.valueOf(updates.get("available"))));
+            item.setAvailable(Boolean.parseBoolean(String.valueOf(updates.get("available"))));
         }
         return item;
     }
@@ -54,11 +55,15 @@ public class ItemStorageInMemory implements ItemStorage {
 
     @Override
     public List<Item> searchItem(String keyWord) {
-        String text = keyWord.toLowerCase();
-        return items.values().stream()
-                .filter(i -> i.getName().toLowerCase().contains(text))
-                .filter(i -> i.getDescription().toLowerCase().contains(text))
-                .collect(Collectors.toList());
+        if (keyWord.isEmpty()) {
+            return new ArrayList<>();
+        } else {
+            String text = keyWord.toLowerCase();
+            return items.values().stream()
+                    .filter(i -> (i.getName().toLowerCase().contains(text) ||
+                            i.getDescription().toLowerCase().contains(text)) && i.isAvailable())
+                    .collect(Collectors.toList());
+        }
     }
 
     @Override

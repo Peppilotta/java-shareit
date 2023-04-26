@@ -5,7 +5,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
-import ru.practicum.shareit.exception.ItemDoesNotExistException;
 
 import java.util.Map;
 
@@ -40,5 +39,11 @@ public class ExceptionController {
                 MESSAGE, e.getMessage());
     }
 
-
+    @ExceptionHandler(BadRequestException.class)
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    public Map<String, String> handleBadRequest(final RuntimeException e) {
+        log.error(e.getMessage(), e);
+        return Map.of(ERROR, "bad request",
+                MESSAGE, e.getMessage());
+    }
 }

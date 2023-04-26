@@ -8,12 +8,10 @@ import lombok.Setter;
 import lombok.ToString;
 
 import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Positive;
 import javax.validation.constraints.Size;
 
-/**
- * TODO Sprint add-controllers.
- */
 @Getter
 @Setter
 @ToString
@@ -35,5 +33,6 @@ public class Item {
     @Size(max = 255)
     private String description;
 
-    private boolean available = true;
+    @NotNull(message = "Item availability absent")
+    private boolean available;
 }

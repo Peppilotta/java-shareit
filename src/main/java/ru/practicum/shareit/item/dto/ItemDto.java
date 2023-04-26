@@ -8,11 +8,9 @@ import lombok.Setter;
 import lombok.ToString;
 
 import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 
-/**
- * TODO Sprint add-controllers.
- */
 @Getter
 @Setter
 @ToString
@@ -20,6 +18,7 @@ import javax.validation.constraints.Size;
 @AllArgsConstructor
 @Builder(toBuilder = true)
 public class ItemDto {
+
     private long id;
 
     @NotBlank(message = "Item name absent")
@@ -30,7 +29,8 @@ public class ItemDto {
     @Size(max = 255)
     private String description;
 
-    private boolean available = true;
+    @NotNull(message = "Item availability absent")
+    private boolean available;
 
     private long necessity = 0;
 }
