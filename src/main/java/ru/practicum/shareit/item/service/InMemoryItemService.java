@@ -19,14 +19,14 @@ import java.util.stream.Collectors;
 
 @Service
 @Slf4j
-public class ItemServiceInMemory implements ItemService {
+public class InMemoryItemService implements ItemService {
     private final ItemStorage itemStorage;
 
     private final ItemMapper itemMapper;
 
     private final UserStorage userStorage;
 
-    public ItemServiceInMemory(ItemStorage itemStorage, ItemMapper itemMapper, UserStorage userStorage) {
+    public InMemoryItemService(ItemStorage itemStorage, ItemMapper itemMapper, UserStorage userStorage) {
         this.itemStorage = itemStorage;
         this.itemMapper = itemMapper;
         this.userStorage = userStorage;
@@ -47,7 +47,17 @@ public class ItemServiceInMemory implements ItemService {
         checkUserExistence(userId);
         checkItemExistence(id);
         checkItemOwner(userId, id);
-        return itemMapper.mapFromItem(itemStorage.updateItem(id, updates));
+        Item item = itemStorage.getItem(id);
+        if (updates.containsKey("name")) {
+            item.setName(String.valueOf(updates.get("name")));
+        }
+        if (updates.containsKey("description")) {
+            item.setDescription(String.valueOf(updates.get("description")));
+        }
+        if (updates.containsKey("available")) {
+            item.setAvailable(Boolean.parseBoolean(String.valueOf(updates.get("available"))));
+        }
+        return itemMapper.mapFromItem(itemStorage.updateItem(item));
     }
 
     @Override
@@ -62,9 +72,9 @@ public class ItemServiceInMemory implements ItemService {
     public List<ItemDto> getItems(long userId) {
         log.info("Get request for items of user with id={}", userId);
         checkUserExistence(userId);
-        return new ArrayList<>(itemStorage.getItems(userId).stream()
+        return itemStorage.getItems(userId).stream()
                 .map(itemMapper::mapFromItem)
-                .collect(Collectors.toList()));
+                .collect(Collectors.toList());
     }
 
     @Override

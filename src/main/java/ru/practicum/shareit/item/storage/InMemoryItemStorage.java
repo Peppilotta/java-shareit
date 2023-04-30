@@ -11,7 +11,7 @@ import java.util.Objects;
 import java.util.stream.Collectors;
 
 @Repository
-public class ItemStorageInMemory implements ItemStorage {
+public class InMemoryItemStorage implements ItemStorage {
     private final Map<Long, Item> items = new HashMap<>();
     long count = 0;
 
@@ -23,18 +23,10 @@ public class ItemStorageInMemory implements ItemStorage {
     }
 
     @Override
-    public Item updateItem(long id, Map<String, Object> updates) {
-        Item item = items.get(id);
-        if (updates.containsKey("name")) {
-            item.setName(String.valueOf(updates.get("name")));
-        }
-        if (updates.containsKey("description")) {
-            item.setDescription(String.valueOf(updates.get("description")));
-        }
-        if (updates.containsKey("available")) {
-            item.setAvailable(Boolean.parseBoolean(String.valueOf(updates.get("available"))));
-        }
-        return item;
+    public Item updateItem(Item item) {
+        long id = item.getId();
+        items.put(id, item);
+        return items.get(id);
     }
 
     @Override
@@ -57,13 +49,12 @@ public class ItemStorageInMemory implements ItemStorage {
     public List<Item> searchItem(String keyWord) {
         if (keyWord.isEmpty()) {
             return new ArrayList<>();
-        } else {
-            String text = keyWord.toLowerCase();
-            return items.values().stream()
-                    .filter(i -> (i.getName().toLowerCase().contains(text) ||
-                            i.getDescription().toLowerCase().contains(text)) && i.isAvailable())
-                    .collect(Collectors.toList());
         }
+        String text = keyWord.toLowerCase();
+        return items.values().stream()
+                .filter(i -> (i.getName().toLowerCase().contains(text) ||
+                        i.getDescription().toLowerCase().contains(text)) && i.isAvailable())
+                .collect(Collectors.toList());
     }
 
     @Override

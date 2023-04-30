@@ -11,7 +11,7 @@ import java.util.Objects;
 import java.util.stream.Collectors;
 
 @Repository
-public class UserStorageInMemory implements UserStorage {
+public class InMemoryUserStorage implements UserStorage {
 
     private final Map<Long, User> users = new HashMap<>();
     private long count = 0;
@@ -24,15 +24,9 @@ public class UserStorageInMemory implements UserStorage {
     }
 
     @Override
-    public User updateUser(long id, Map<String, Object> updates) {
-        User updatedUser = users.get(id);
-        if (updates.containsKey("name")) {
-            updatedUser.setName(String.valueOf(updates.get("name")));
-        }
-        if (updates.containsKey("email")) {
-            updatedUser.setEmail(String.valueOf(updates.get("email")));
-        }
-        return updatedUser;
+    public User updateUser(User user) {
+        users.put(user.getId(), user);
+        return user;
     }
 
     @Override
@@ -58,7 +52,7 @@ public class UserStorageInMemory implements UserStorage {
     }
 
     @Override
-    public long checkEmailExistence(String email) {
+    public long getUserIdWithSuchEmail(String email) {
         List<User> usersIdWithSameEmail = users.values().stream()
                 .filter(user -> Objects.equals(user.getEmail().toLowerCase(), email.trim().toLowerCase()))
                 .collect(Collectors.toList());

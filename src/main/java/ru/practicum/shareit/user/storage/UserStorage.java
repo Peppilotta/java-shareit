@@ -3,13 +3,12 @@ package ru.practicum.shareit.user.storage;
 import ru.practicum.shareit.user.model.User;
 
 import java.util.List;
-import java.util.Map;
 
 public interface UserStorage {
 
     User createUser(User user);
 
-    User updateUser(long id, Map<String, Object> updates);
+    User updateUser(User user);
 
     User getUser(long id);
 
@@ -19,5 +18,5 @@ public interface UserStorage {
 
     boolean checkUserExistence(long id);
 
-    long checkEmailExistence(String email);
+    long getUserIdWithSuchEmail(String email);
 }
