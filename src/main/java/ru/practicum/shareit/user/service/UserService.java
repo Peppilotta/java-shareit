@@ -29,9 +29,9 @@ public class UserService {
 
     public UserDto create(UserDto userDto) {
         log.info("Create request for user {}", userDto);
-        avoidConflict(0, userDto.getEmail());
-        User user = userStorage.createUser(userMapper.mapUserDtoToUser(userDto));
-        return userMapper.mapUserToUserDto(user);
+        validateUniqueEmail(0, userDto.getEmail());
+        User user = userStorage.createUser(userMapper.toUser(userDto));
+        return userMapper.toDto(user);
     }
 
     public UserDto update(long id, Map<String, Object> updates) {
@@ -42,7 +42,7 @@ public class UserService {
             String emailFromUpdate = String.valueOf(updates.get("email"));
             if (!Objects.equals(emailFromUpdate.trim().toLowerCase(),
                     user.getEmail().trim().toLowerCase())) {
-                avoidConflict(id, emailFromUpdate);
+                validateUniqueEmail(id, emailFromUpdate);
             }
             user.setEmail(String.valueOf(updates.get("email")));
         }
@@ -50,21 +50,21 @@ public class UserService {
             user.setName(String.valueOf(updates.get("name")));
         }
 
-        return userMapper.mapUserToUserDto(userStorage.updateUser(user));
+        return userMapper.toDto(userStorage.updateUser(user));
     }
 
     public List<UserDto> getUsers() {
         log.info("GET request - all users");
         return userStorage.getUsers()
                 .stream()
-                .map(u -> userMapper.mapUserToUserDto(u))
+                .map(userMapper::toDto)
                 .collect(Collectors.toList());
     }
 
     public UserDto getUser(long id) {
         log.info("GET request - user id={} ", id);
         checkUserExistence(id);
-        return userMapper.mapUserToUserDto(userStorage.getUser(id));
+        return userMapper.toDto(userStorage.getUser(id));
     }
 
     public UserDto deleteUser(long id) {
@@ -73,7 +73,7 @@ public class UserService {
         User deletedUser = userStorage.getUser(id);
         userStorage.deleteUser(id);
         log.info("User deleted: {} ", deletedUser.toString());
-        return userMapper.mapUserToUserDto(deletedUser);
+        return userMapper.toDto(deletedUser);
     }
 
     private void checkUserExistence(long id) {
@@ -82,9 +82,9 @@ public class UserService {
         }
     }
 
-    private void avoidConflict(long id, String email) {
-        long idUserWithEmail = userStorage.getUserIdWithSuchEmail(email);
-        if ((idUserWithEmail > 0 && id == 0) || (idUserWithEmail > 0 && idUserWithEmail != id)) {
+    private void validateUniqueEmail(long id, String email) {
+        long userId = userStorage.getUserIdUsingEmail(email);
+        if ((userId > 0 && id == 0) || (userId > 0 && userId != id)) {
             throw new FindDuplicateException("User with email=" + email + " already exists.");
         }
     }

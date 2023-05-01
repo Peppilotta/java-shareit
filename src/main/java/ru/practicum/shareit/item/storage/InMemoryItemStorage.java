@@ -13,12 +13,12 @@ import java.util.stream.Collectors;
 @Repository
 public class InMemoryItemStorage implements ItemStorage {
     private final Map<Long, Item> items = new HashMap<>();
-    long count = 0;
+    long idSequence = 0;
 
     @Override
     public Item createItem(Item item) {
-        item.setId(++count);
-        items.put(count, item);
+        item.setId(++idSequence);
+        items.put(idSequence, item);
         return item;
     }
 
@@ -46,11 +46,11 @@ public class InMemoryItemStorage implements ItemStorage {
     }
 
     @Override
-    public List<Item> searchItem(String keyWord) {
-        if (keyWord.isEmpty()) {
+    public List<Item> searchItem(String query) {
+        if (query.isEmpty()) {
             return new ArrayList<>();
         }
-        String text = keyWord.toLowerCase();
+        String text = query.toLowerCase();
         return items.values().stream()
                 .filter(i -> (i.getName().toLowerCase().contains(text) ||
                         i.getDescription().toLowerCase().contains(text)) && i.isAvailable())

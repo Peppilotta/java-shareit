@@ -18,5 +18,5 @@ public interface UserStorage {
 
     boolean checkUserExistence(long id);
 
-    long getUserIdWithSuchEmail(String email);
+    long getUserIdUsingEmail(String email);
 }

@@ -33,20 +33,20 @@ public class InMemoryItemService implements ItemService {
     }
 
     @Override
-    public ItemDto createItem(long userId, ItemDto item) {
-        log.info("Create request for item {}", item);
-        checkUserExistence(userId);
-        checkItemCompletion(item);
-        Item itemInStorage = itemStorage.createItem(itemMapper.mapFromItemDto(userId, item));
-        return itemMapper.mapFromItem(itemInStorage);
+    public ItemDto createItem(long userId, ItemDto itemDto) {
+        log.info("Create request for itemDto {}", itemDto);
+        checkUserExists(userId);
+        checkItemIsAvailable(itemDto);
+        Item item = itemStorage.createItem(itemMapper.mapFromItemDto(userId, itemDto));
+        return itemMapper.mapFromItem(item);
     }
 
     @Override
     public ItemDto updateItem(long userId, long id, Map<String, Object> updates) {
         log.info("Update request for item with id={}", id);
-        checkUserExistence(userId);
-        checkItemExistence(id);
-        checkItemOwner(userId, id);
+        checkUserExists(userId);
+        checkItemExists(id);
+        checkItemOwnerId(userId, id);
         Item item = itemStorage.getItem(id);
         if (updates.containsKey("name")) {
             item.setName(String.valueOf(updates.get("name")));
@@ -63,15 +63,15 @@ public class InMemoryItemService implements ItemService {
     @Override
     public ItemDto getItem(long userId, long id) {
         log.info("Get request for item with id={}", id);
-        checkUserExistence(userId);
-        checkItemExistence(id);
+        checkUserExists(userId);
+        checkItemExists(id);
         return itemMapper.mapFromItem(itemStorage.getItem(id));
     }
 
     @Override
     public List<ItemDto> getItems(long userId) {
         log.info("Get request for items of user with id={}", userId);
-        checkUserExistence(userId);
+        checkUserExists(userId);
         return itemStorage.getItems(userId).stream()
                 .map(itemMapper::mapFromItem)
                 .collect(Collectors.toList());
@@ -81,7 +81,7 @@ public class InMemoryItemService implements ItemService {
     public ItemDto deleteItem(long userId, long id) {
         log.info("Delete request for item with id={}", id);
         ItemDto itemDto = getItem(userId, id);
-        checkItemOwner(userId, id);
+        checkItemOwnerId(userId, id);
         itemStorage.deleteItem(id);
         return itemDto;
     }
@@ -89,31 +89,31 @@ public class InMemoryItemService implements ItemService {
     @Override
     public List<ItemDto> searchItem(long userId, String keyWord) {
         log.info("Get request for item owned by user with id={}", userId);
-        checkUserExistence(userId);
+        checkUserExists(userId);
         return new ArrayList<>(itemStorage.searchItem(keyWord).stream()
                 .map(itemMapper::mapFromItem)
                 .collect(Collectors.toList()));
     }
 
-    private void checkItemExistence(long id) {
+    private void checkItemExists(long id) {
         if (!itemStorage.checkItemExistence(id)) {
             throw new ItemDoesNotExistException("Item with id=" + id + " not exists.");
         }
     }
 
-    private void checkUserExistence(long id) {
+    private void checkUserExists(long id) {
         if (!userStorage.checkUserExistence(id)) {
             throw new ItemDoesNotExistException("User with id=" + id + " not exists.");
         }
     }
 
-    private void checkItemOwner(long userId, long id) {
+    private void checkItemOwnerId(long userId, long id) {
         if (!Objects.equals(userId, itemStorage.getItem(id).getUserId())) {
             throw new NotOwnerException("User with id=" + userId + "  is not owner of item with id=" + id);
         }
     }
 
-    private void checkItemCompletion(ItemDto item) {
+    private void checkItemIsAvailable(ItemDto item) {
         if (!item.isAvailable()) {
             throw new BadRequestException("Item field AVAILABLE is absent");
         }

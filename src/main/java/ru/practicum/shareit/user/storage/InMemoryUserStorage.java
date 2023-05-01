@@ -52,14 +52,13 @@ public class InMemoryUserStorage implements UserStorage {
     }
 
     @Override
-    public long getUserIdWithSuchEmail(String email) {
-        List<User> usersIdWithSameEmail = users.values().stream()
+    public long getUserIdUsingEmail(String email) {
+        List<User> usersIds = users.values().stream()
                 .filter(user -> Objects.equals(user.getEmail().toLowerCase(), email.trim().toLowerCase()))
                 .collect(Collectors.toList());
-        if (usersIdWithSameEmail.isEmpty()) {
+        if (usersIds.isEmpty()) {
             return 0;
-        } else {
-            return usersIdWithSameEmail.get(0).getId();
         }
+        return usersIds.get(0).getId();
     }
 }
