@@ -1,4 +1,4 @@
-package ru.practicum.shareit.item.model;
+package ru.practicum.shareit.user.dto;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -7,21 +7,23 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
 
+import javax.validation.constraints.Email;
+import javax.validation.constraints.NotBlank;
+
 @Getter
 @Setter
 @ToString
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder(toBuilder = true)
-public class Item {
+public class UserDto {
 
     private long id;
 
-    private long userId;
+    @NotBlank(message = "Email absent")
+    @Email(message = "Wrong email")
+    private String email;
 
+    @NotBlank(message = "Wrong name")
     private String name;
-
-    private String description;
-
-    private boolean available;
 }
