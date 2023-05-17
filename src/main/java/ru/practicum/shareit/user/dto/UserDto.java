@@ -9,6 +9,7 @@ import lombok.ToString;
 
 import javax.validation.constraints.Email;
 import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.NotNull;
 
 @Getter
 @Setter
@@ -18,12 +19,15 @@ import javax.validation.constraints.NotBlank;
 @Builder(toBuilder = true)
 public class UserDto {
 
-    private long id;
+    private Long id;
 
-    @NotBlank(message = "Email absent")
-    @Email(message = "Wrong email")
+    @NotNull
+    private String name;
+
+    @NotBlank
+    @Email
     private String email;
 
-    @NotBlank(message = "Wrong name")
-    private String name;
+    @Email
+    private String registrationDate;
 }
