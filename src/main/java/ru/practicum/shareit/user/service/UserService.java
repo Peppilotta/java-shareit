@@ -25,11 +25,9 @@ public class UserService {
 
     private final UserMapper userMapper;
 
-    public UserDto create(UserDto userDto) {
-        log.info("Create request for user {}", userDto);
-        validateUniqueEmail(0L, userDto.getEmail());
-        User user = userRepository.save(userMapper.toUser(userDto));
-        return userMapper.toDto(user);
+    public User create(User user) {
+        log.info("Create request for user {}", user);
+        return  userRepository.save(user);
     }
 
     public UserDto update(Long id, Map<String, Object> updates) {
@@ -38,10 +36,6 @@ public class UserService {
         User user = userRepository.findById(id).get();
         if (updates.containsKey("email")) {
             String emailFromUpdate = String.valueOf(updates.get("email"));
-            if (!Objects.equals(emailFromUpdate.trim().toLowerCase(),
-                    user.getEmail().trim().toLowerCase())) {
-                validateUniqueEmail(id, emailFromUpdate);
-            }
             user.setEmail(String.valueOf(updates.get("email")));
         }
         if (updates.containsKey("name")) {
@@ -80,6 +74,7 @@ public class UserService {
         }
     }
 
+/*
     private void validateUniqueEmail(Long id, String email) {
         List<User> usersWithTheSameEmail = new ArrayList<>(userRepository.findByEmail(email.trim()));
         if (!usersWithTheSameEmail.isEmpty()) {
@@ -89,4 +84,5 @@ public class UserService {
             }
         }
     }
+*/
 }
