@@ -27,6 +27,7 @@ import javax.persistence.EntityNotFoundException;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -195,7 +196,9 @@ public class InRepositoryItemService implements ItemService {
         if (bookings.isEmpty()) {
             return null;
         }
-        Booking booking = bookings.get(0);
+        Comparator<Booking> byDateEnd = Comparator.comparing(Booking::getEnd);
+        bookings.stream().sorted(byDateEnd).collect(Collectors.toList());
+        Booking booking = bookings.get(bookings.size() - 1);
         return new ItemBookingDto(booking.getId(), booking.getBooker().getId());
     }
 
@@ -204,6 +207,8 @@ public class InRepositoryItemService implements ItemService {
         if (bookings.isEmpty()) {
             return null;
         }
+        Comparator<Booking> byDateStart = Comparator.comparing(Booking::getStart);
+        bookings.stream().sorted(byDateStart).collect(Collectors.toList());
         Booking booking = bookings.get(0);
         return new ItemBookingDto(booking.getId(), booking.getBooker().getId());
     }
