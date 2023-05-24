@@ -33,7 +33,8 @@ public class BookingController {
     @PostMapping()
     public BookingDto create(@Valid @RequestBody BookingDtoWithId bookingCreateDto,
                              @RequestHeader("X-Sharer-User-Id") long userId) {
-        return bookingMapper.toDto(bookingService.save(bookingMapper.toBooking(bookingCreateDto), userId));
+        return bookingMapper
+                .toDto(bookingService.save(bookingMapper.toBooking(bookingCreateDto, userId), userId));
     }
 
     @PatchMapping("{bookingId}")

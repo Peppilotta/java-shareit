@@ -57,8 +57,8 @@ public class InRepositoryItemService implements ItemService {
     @Override
     public ItemDto createItem(Long userId, ItemDto itemDto) {
         log.info("Create request for itemDto {}", itemDto);
-        checkUserExists(userId);
         checkItemIsAvailable(itemDto);
+        checkUserExists(userId);
         itemDto.setOwner(userMapper.toDto(userRepository.findById(userId).get()));
         Item item = itemRepository.save(itemMapper.toItem(itemDto));
         return itemMapper.toDto(item);
@@ -70,7 +70,7 @@ public class InRepositoryItemService implements ItemService {
         checkUserExists(userId);
         checkItemExists(id);
         checkItemOwnerId(userId, id);
-        Item item = itemRepository.findById(id).get();
+        Item item = itemMapper.toItem(this.getItem(userId, id));
         if (updates.containsKey("name")) {
             item.setName(String.valueOf(updates.get("name")));
         }
@@ -135,6 +135,9 @@ public class InRepositoryItemService implements ItemService {
     @Override
     public List<ItemDto> searchItem(Long userId, String keyWord) {
         log.info("Get request for item owned by user with id={}", userId);
+        if (keyWord.trim().isEmpty()) {
+            return new ArrayList<>();
+        }
         checkUserExists(userId);
         String query = "%" + keyWord.trim().toLowerCase() + "%";
         return new ArrayList<>(itemRepository.findByNameOrDescription(query)

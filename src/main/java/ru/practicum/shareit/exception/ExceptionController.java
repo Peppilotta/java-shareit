@@ -2,6 +2,7 @@ package ru.practicum.shareit.exception;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
@@ -39,11 +40,21 @@ public class ExceptionController {
                 MESSAGE, e.getMessage());
     }
 
+/*
     @ExceptionHandler(BadRequestException.class)
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     public Map<String, String> handleBadRequest(final RuntimeException e) {
         log.error(e.getMessage(), e);
         return Map.of(ERROR, "bad request",
                 MESSAGE, e.getMessage());
+    }
+*/
+
+    @ExceptionHandler
+    public ResponseEntity<ErrorResponse> handleEntityNotFoundException(final BadRequestException e) {
+        log.warn(e.getMessage());
+        return ResponseEntity
+                .status(HttpStatus.BAD_REQUEST)
+                .body(new ErrorResponse(e.getMessage()));
     }
 }

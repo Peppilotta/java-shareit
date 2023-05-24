@@ -1,9 +1,12 @@
 package ru.practicum.shareit.booking.storage;
 
 import ru.practicum.shareit.booking.model.Booking;
+import ru.practicum.shareit.booking.model.BookingSearchType;
 import ru.practicum.shareit.booking.model.BookingStatus;
 
+import java.lang.reflect.Array;
 import java.time.LocalDateTime;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -11,19 +14,20 @@ import java.util.Optional;
 
 public class BookingSearchFactory {
 
-    static Map<String, BookingSearch> searchMap = new HashMap<>();
+    static Map<BookingSearchType, BookingSearch> searchMap = new HashMap<>();
+
 
     static {
-        searchMap.put("ALL", new SearchAll());
-        searchMap.put("CURRENT", new SearchCurrent());
-        searchMap.put("PAST", new SearchPast());
-        searchMap.put("FUTURE", new SearchFuture());
-        searchMap.put("WAITING", new SearchWaiting());
-        searchMap.put("REJECTED", new SearchRejected());
+        searchMap.put(BookingSearchType.ALL, new SearchAll());
+        searchMap.put(BookingSearchType.CURRENT, new SearchCurrent());
+        searchMap.put(BookingSearchType.PAST, new SearchPast());
+        searchMap.put(BookingSearchType.FUTURE, new SearchFuture());
+        searchMap.put(BookingSearchType.WAITING, new SearchWaiting());
+        searchMap.put(BookingSearchType.REJECTED, new SearchRejected());
     }
 
-    public static Optional<BookingSearch> getSearchMethod(String operator) {
-        return Optional.ofNullable(searchMap.get(operator));
+    public static Optional<BookingSearch> getSearchMethod(BookingSearchType type) {
+        return Optional.ofNullable(searchMap.get(type));
     }
 }
 

@@ -7,16 +7,19 @@ import org.springframework.stereotype.Service;
 import ru.practicum.shareit.booking.dto.BookingDto;
 import ru.practicum.shareit.booking.dto.BookingMapper;
 import ru.practicum.shareit.booking.model.Booking;
+import ru.practicum.shareit.booking.model.BookingSearchType;
 import ru.practicum.shareit.booking.model.BookingStatus;
 import ru.practicum.shareit.booking.storage.BookingRepository;
 import ru.practicum.shareit.booking.storage.BookingSearch;
 import ru.practicum.shareit.booking.storage.BookingSearchFactory;
 import ru.practicum.shareit.exception.BadRequestException;
 import ru.practicum.shareit.exception.ItemDoesNotExistException;
+import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.item.storage.ItemRepository;
 import ru.practicum.shareit.user.storage.UserRepository;
 
 import java.time.LocalDateTime;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
@@ -46,7 +49,6 @@ public class InStorageBookingService implements BookingService {
 
     @Override
     public Booking changeBookingStatus(Long bookingId, Boolean isApproved, Long requesterId) {
-
         Booking booking = bookingRepository
                 .findById(bookingId)
                 .orElseThrow(() -> new ItemDoesNotExistException("Booking with id " + bookingId + " not found"));
@@ -78,9 +80,10 @@ public class InStorageBookingService implements BookingService {
     @Override
     public List<BookingDto> getBookingByState(Long ownerId, String state) {
         checkUserExists(ownerId);
+        checkState(state);
         BookingSearch bookingSearch = BookingSearchFactory
-                .getSearchMethod(state)
-                .orElseThrow(() -> new IllegalArgumentException("Unknown state: UNSUPPORTED_STATUS"));
+                .getSearchMethod(BookingSearchType.valueOf(state))
+                .orElseThrow(() -> new IllegalArgumentException());
 
         List<BookingDto> bookingDtos = bookingSearch
                 .getBookings(ownerId, bookingRepository)
@@ -94,9 +97,9 @@ public class InStorageBookingService implements BookingService {
     @Override
     public List<BookingDto> getBookingByStateAndOwner(Long ownerId, String state) {
         checkUserExists(ownerId);
-
+        checkState(state);
         BookingSearch bookingSearch = BookingSearchFactory
-                .getSearchMethod(state)
+                .getSearchMethod(BookingSearchType.valueOf(state))
                 .orElseThrow(() -> new IllegalArgumentException("Unknown state: UNSUPPORTED_STATUS"));
 
         List<BookingDto> collect = bookingSearch
@@ -117,19 +120,38 @@ public class InStorageBookingService implements BookingService {
     }
 
     private void checkBookingBasicConstraints(Booking booking, Long requesterId) {
-        if (booking.getEnd().isBefore(booking.getStart())
-                || booking.getEnd().isBefore(LocalDateTime.now())
-                || booking.getStart().isBefore(LocalDateTime.now())) {
+        checkUserExists(requesterId);
+        Long itemId = booking.getItem().getId();
+        checkItemExists(itemId);
+        Item item = itemRepository.findById(itemId).get();
+        if (Objects.equals(booking.getStart(), null)) {
+            throw new BadRequestException("Booking start should be not null");
+        }
+        if (Objects.equals(booking.getEnd(), null)) {
+            throw new BadRequestException("Booking end should be not null");
+        }
+        if (Objects.equals(item.getOwner().getId(), requesterId)) {
+            throw new ItemDoesNotExistException("Owner want to book his/ her Item");
+        }
+        LocalDateTime start = booking.getStart();
+        LocalDateTime end = booking.getEnd();
+
+        if (end.isBefore(start)
+                || Objects.equals(start, end)
+                || end.isBefore(LocalDateTime.now())
+                || start.isBefore(LocalDateTime.now())) {
             throw new BadRequestException("Booking start should be less than End and not be in past");
         }
-        List<Booking> bookings = bookingRepository.searchById(booking.getItem().getId(), requesterId);
-
-        if (bookings.stream().anyMatch(b -> Objects.equals(b.getStatus(), BookingStatus.WAITING)
-                || Objects.equals(b.getStatus(), BookingStatus.APPROVED))) {
-            throw new ItemDoesNotExistException("Booking can't be made to one item more than one time");
+        if (!item.getAvailable() ) {
+            throw new BadRequestException("Booking can't be made to unavailable item");
         }
 
-        checkItemExists(booking.getItem().getId());
+        List<Booking> bookings = bookingRepository.searchByItemIdAndStartAddEnd(item.getId(), booking.getStart(), booking.getEnd());
+
+        if (bookings.stream().anyMatch(b -> b.getStatus().equals(BookingStatus.WAITING)
+                || b.getStatus().equals(BookingStatus.APPROVED))) {
+            throw new BadRequestException("Booking can't be made to one item more than one time");
+        }
     }
 
     private void checkUserExists(Long id) {
@@ -141,6 +163,15 @@ public class InStorageBookingService implements BookingService {
     private void checkItemExists(Long id) {
         if (!itemRepository.existsById(id)) {
             throw new ItemDoesNotExistException("Item with id=" + id + " not exists.");
+        }
+    }
+
+    private void checkState(String state) {
+        List<String> types = Arrays.stream(BookingSearchType.values())
+                .map(t -> t.toString())
+                .collect(Collectors.toList());
+        if (!types.contains(state)) {
+            throw new BadRequestException("Unknown state: UNSUPPORTED_STATUS");
         }
     }
 }
