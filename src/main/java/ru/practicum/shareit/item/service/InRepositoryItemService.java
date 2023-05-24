@@ -27,7 +27,6 @@ import javax.persistence.EntityNotFoundException;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -92,6 +91,9 @@ public class InRepositoryItemService implements ItemService {
         Item item = itemRepository.findById(id).get();
         ItemDto itemDto = itemMapper.toDto(item);
         itemDto.setComments(commentMapper.map(item.getItemComments()));
+        itemDto.setLastBooking(getLastBookingForItem(id));
+        itemDto.setNextBooking(getFutureBookingFotItem(id));
+/*
         Comparator<Booking> byDateEnd = Comparator.comparing(Booking::getEnd);
         List<Booking> bookings = item.getItemBookings()
                 .stream()
@@ -99,12 +101,28 @@ public class InRepositoryItemService implements ItemService {
                 .sorted(byDateEnd).limit(2)
                 .collect(Collectors.toList());
         return getItemDtoWithLastAndNextBookings(itemDto, bookings);
+*/
+        return itemDto;
     }
 
     @Override
     public List<ItemDto> getItems(Long userId) {
         log.info("Get request for items of user with id={}", userId);
         checkUserExists(userId);
+        List<Item> items = new ArrayList<>(itemRepository.findByOwnerId(userId));
+        if (items.isEmpty()) {
+            return new ArrayList<ItemDto>();
+        }
+        List<ItemDto> itemsDto = items.stream()
+                .map(itemMapper::toDto)
+                .collect(Collectors.toList());
+               for (ItemDto itemDto : itemsDto) {
+                   Long itemDtoId = itemDto.getId();
+                   itemDto.setLastBooking(getLastBookingForItem(itemDtoId));
+                   itemDto.setNextBooking(getFutureBookingFotItem(itemDtoId));
+               }
+        return itemsDto;
+/*
         return new ArrayList<>(itemRepository.findByOwnerId(userId)
                 .stream()
                 .filter(Objects::nonNull)
@@ -121,6 +139,7 @@ public class InRepositoryItemService implements ItemService {
                     return getItemDtoWithLastAndNextBookings(itemDto, bookings);
                 })
                 .collect(Collectors.collectingAndThen(Collectors.toList(), Collections::unmodifiableList)));
+*/
     }
 
     @Override
@@ -169,6 +188,26 @@ public class InRepositoryItemService implements ItemService {
                     ("error while trying to add comment to item which hasn't  finished booking by user");
         }
     }
+
+
+    private ItemBookingDto getLastBookingForItem(Long itemId) {
+        List<Booking> bookings = bookingRepository.searchByItemIdAndEndBeforeDate(itemId, LocalDateTime.now());
+        if (bookings.isEmpty()) {
+            return null;
+        }
+        Booking booking = bookings.get(0);
+        return new ItemBookingDto(booking.getId(), booking.getBooker().getId());
+    }
+
+    private ItemBookingDto getFutureBookingFotItem(Long itemId) {
+        List<Booking> bookings = bookingRepository.searchByItemIdAndStartAfterDate(itemId, LocalDateTime.now());
+        if (bookings.isEmpty()) {
+            return null;
+        }
+        Booking booking = bookings.get(0);
+        return new ItemBookingDto(booking.getId(), booking.getBooker().getId());
+    }
+
 
     public Item map(Long id) {
         Optional<Item> item = itemRepository.findById(id);

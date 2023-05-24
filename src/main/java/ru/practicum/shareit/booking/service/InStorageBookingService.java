@@ -14,6 +14,7 @@ import ru.practicum.shareit.booking.storage.BookingSearch;
 import ru.practicum.shareit.booking.storage.BookingSearchFactory;
 import ru.practicum.shareit.exception.BadRequestException;
 import ru.practicum.shareit.exception.ItemDoesNotExistException;
+import ru.practicum.shareit.item.dto.ItemBookingDto;
 import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.item.storage.ItemRepository;
 import ru.practicum.shareit.user.storage.UserRepository;
@@ -110,6 +111,15 @@ public class InStorageBookingService implements BookingService {
         log.debug("Bookings for owner id: {} and state: {} returned collection: {}", ownerId, state, collect);
 
         return collect;
+    }
+
+    private ItemBookingDto getLastBooking(Long itemId) {
+        List<Booking> bookings = bookingRepository.searchByItemIdAndEndBeforeDate(itemId, LocalDateTime.now());
+        if (bookings.isEmpty()) {
+            return null;
+        }
+        Booking booking = bookings.get(0);
+        return new ItemBookingDto(booking.getId(), booking.getBooker().getId());
     }
 
     private void checkItemOwner(Booking booking, Long requesterId) {
