@@ -27,7 +27,7 @@ import javax.persistence.EntityNotFoundException;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Comparator;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -94,15 +94,6 @@ public class InRepositoryItemService implements ItemService {
         itemDto.setComments(commentMapper.map(item.getItemComments()));
         itemDto.setLastBooking(getLastBookingForItem(id));
         itemDto.setNextBooking(getFutureBookingFotItem(id));
-/*
-        Comparator<Booking> byDateEnd = Comparator.comparing(Booking::getEnd);
-        List<Booking> bookings = item.getItemBookings()
-                .stream()
-                .filter(x -> Objects.equals(x.getItem().getOwner().getId(), userId))
-                .sorted(byDateEnd).limit(2)
-                .collect(Collectors.toList());
-        return getItemDtoWithLastAndNextBookings(itemDto, bookings);
-*/
         return itemDto;
     }
 
@@ -117,30 +108,12 @@ public class InRepositoryItemService implements ItemService {
         List<ItemDto> itemsDto = items.stream()
                 .map(itemMapper::toDto)
                 .collect(Collectors.toList());
-               for (ItemDto itemDto : itemsDto) {
-                   Long itemDtoId = itemDto.getId();
-                   itemDto.setLastBooking(getLastBookingForItem(itemDtoId));
-                   itemDto.setNextBooking(getFutureBookingFotItem(itemDtoId));
-               }
+        for (ItemDto itemDto : itemsDto) {
+            Long itemDtoId = itemDto.getId();
+            itemDto.setLastBooking(getLastBookingForItem(itemDtoId));
+            itemDto.setNextBooking(getFutureBookingFotItem(itemDtoId));
+        }
         return itemsDto;
-/*
-        return new ArrayList<>(itemRepository.findByOwnerId(userId)
-                .stream()
-                .filter(Objects::nonNull)
-                .map(x -> {
-                    Comparator<Booking> byDateEnd = Comparator.comparing(Booking::getEnd);
-                    ItemDto itemDto = itemMapper.toDto(x);
-                    itemDto.setComments(commentMapper.map(x.getItemComments()));
-                    List<Booking> bookings = x.getItemBookings()
-                            .stream()
-                            .filter(y -> Objects.equals(y.getItem().getOwner().getId(), userId))
-                            .sorted(byDateEnd)
-                            .limit(2)
-                            .collect(Collectors.toList());
-                    return getItemDtoWithLastAndNextBookings(itemDto, bookings);
-                })
-                .collect(Collectors.collectingAndThen(Collectors.toList(), Collections::unmodifiableList)));
-*/
     }
 
     @Override
@@ -190,29 +163,25 @@ public class InRepositoryItemService implements ItemService {
         }
     }
 
-
     private ItemBookingDto getLastBookingForItem(Long itemId) {
-        List<Booking> bookings = bookingRepository.searchByItemIdAndEndBeforeDate(itemId, LocalDateTime.now());
+        List<Booking> bookings = new LinkedList<>(bookingRepository
+                .searchByItemIdAndEndBeforeDate(itemId, LocalDateTime.now()));
         if (bookings.isEmpty()) {
             return null;
         }
-        Comparator<Booking> byDateEnd = Comparator.comparing(Booking::getEnd);
-        bookings.stream().sorted(byDateEnd).collect(Collectors.toList());
-        Booking booking = bookings.get(bookings.size() - 1);
-        return new ItemBookingDto(booking.getId(), booking.getBooker().getId());
-    }
-
-    private ItemBookingDto getFutureBookingFotItem(Long itemId) {
-        List<Booking> bookings = bookingRepository.searchByItemIdAndStartAfterDate(itemId, LocalDateTime.now());
-        if (bookings.isEmpty()) {
-            return null;
-        }
-        Comparator<Booking> byDateStart = Comparator.comparing(Booking::getStart);
-        bookings.stream().sorted(byDateStart).collect(Collectors.toList());
         Booking booking = bookings.get(0);
         return new ItemBookingDto(booking.getId(), booking.getBooker().getId());
     }
 
+    private ItemBookingDto getFutureBookingFotItem(Long itemId) {
+        List<Booking> bookings = new LinkedList<>(bookingRepository
+                .searchByItemIdAndStartAfterDate(itemId, LocalDateTime.now()));
+        if (bookings.isEmpty()) {
+            return null;
+        }
+        Booking booking = bookings.get(0);
+        return new ItemBookingDto(booking.getId(), booking.getBooker().getId());
+    }
 
     public Item map(Long id) {
         Optional<Item> item = itemRepository.findById(id);
