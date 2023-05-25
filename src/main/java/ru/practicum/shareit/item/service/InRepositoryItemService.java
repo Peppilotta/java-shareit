@@ -167,7 +167,12 @@ public class InRepositoryItemService implements ItemService {
         List<Booking> bookings = new LinkedList<>(bookingRepository
                 .searchByItemIdAndEndBeforeDate(itemId, LocalDateTime.now()));
         if (bookings.isEmpty()) {
+            System.out.println("getLastBookingForItem = null");
             return null;
+        }
+        System.out.println("getLastBookingForItem");
+        for (Booking booking : bookings) {
+            System.out.println("id=" + booking.getId().toString() + ", bookerId=" + booking.getBooker().getId());
         }
         Booking booking = bookings.get(0);
         return new ItemBookingDto(booking.getId(), booking.getBooker().getId());
@@ -177,7 +182,13 @@ public class InRepositoryItemService implements ItemService {
         List<Booking> bookings = new LinkedList<>(bookingRepository
                 .searchByItemIdAndStartAfterDate(itemId, LocalDateTime.now()));
         if (bookings.isEmpty()) {
+            System.out.println("getFutureBookingFotItem = null");
+
             return null;
+        }
+        System.out.println("getFutureBookingFotItem");
+        for (Booking booking : bookings) {
+            System.out.println("id=" + booking.getId().toString() + ", bookerId=" + booking.getBooker().getId());
         }
         Booking booking = bookings.get(0);
         return new ItemBookingDto(booking.getId(), booking.getBooker().getId());

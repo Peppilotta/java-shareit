@@ -26,12 +26,12 @@ public class InMemoryUserService {
 
     public UserDto create(UserDto userDto) {
         log.info("Create request for user {}", userDto);
-        validateUniqueEmail(0, userDto.getEmail());
+        validateUniqueEmail(0L, userDto.getEmail());
         User user = userStorage.createUser(userMapper.toUser(userDto));
         return userMapper.toDto(user);
     }
 
-    public UserDto update(long id, Map<String, Object> updates) {
+    public UserDto update(Long id, Map<String, Object> updates) {
         log.info("Update request for user with id={}", id);
         checkUserExistence(id);
         User user = userStorage.getUser(id);
@@ -58,30 +58,31 @@ public class InMemoryUserService {
                 .collect(Collectors.toList());
     }
 
-    public UserDto getUser(long id) {
+    public UserDto getUser(Long id) {
         log.info("GET request - user id={} ", id);
         checkUserExistence(id);
         return userMapper.toDto(userStorage.getUser(id));
     }
 
-    public UserDto deleteUser(long id) {
+    public UserDto deleteUser(Long id) {
         log.info("Delete request - user id={} ", id);
         checkUserExistence(id);
         User deletedUser = userStorage.getUser(id);
         userStorage.deleteUser(id);
-        log.info("User deleted: {} ", deletedUser.toString());
-        return userMapper.toDto(deletedUser);
+        UserDto userDto = userMapper.toDto(deletedUser);
+        log.info("User deleted: {} ", userDto.toString());
+        return userDto;
     }
 
-    private void checkUserExistence(long id) {
+    private void checkUserExistence(Long id) {
         if (!userStorage.checkUserExistence(id)) {
             throw new ItemDoesNotExistException("User with id=" + id + " not exists.");
         }
     }
 
-    private void validateUniqueEmail(long id, String email) {
-        long userId = userStorage.getUserIdUsingEmail(email);
-        if ((userId > 0 && id == 0) || (userId > 0 && userId != id)) {
+    private void validateUniqueEmail(Long id, String email) {
+        Long userId = userStorage.getUserIdUsingEmail(email);
+        if ((userId > 0 && id == 0) || (userId > 0 && !Objects.equals(userId, id))) {
             throw new FindDuplicateException("User with email=" + email + " already exists.");
         }
     }

@@ -4,9 +4,7 @@ import ru.practicum.shareit.booking.model.Booking;
 import ru.practicum.shareit.booking.model.BookingSearchType;
 import ru.practicum.shareit.booking.model.BookingStatus;
 
-import java.lang.reflect.Array;
 import java.time.LocalDateTime;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -15,7 +13,6 @@ import java.util.Optional;
 public class BookingSearchFactory {
 
     static Map<BookingSearchType, BookingSearch> searchMap = new HashMap<>();
-
 
     static {
         searchMap.put(BookingSearchType.ALL, new SearchAll());

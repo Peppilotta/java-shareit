@@ -5,7 +5,6 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import lombok.ToString;
 import ru.practicum.shareit.comment.model.Comment;
 import ru.practicum.shareit.item.model.Item;
 
@@ -24,7 +23,6 @@ import java.util.Set;
 @Table(name = "users")
 @Getter
 @Setter
-@ToString
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder(toBuilder = true)
@@ -41,7 +39,7 @@ public class User {
     @Column(name = "name", nullable = false, length = 255)
     private String name;
 
-    @OneToMany(mappedBy = "owner")
+    @OneToMany(fetch = FetchType.EAGER, mappedBy = "owner")
     private Set<Item> items;
 
     @OneToMany(fetch = FetchType.EAGER, mappedBy = "author", cascade = CascadeType.ALL)

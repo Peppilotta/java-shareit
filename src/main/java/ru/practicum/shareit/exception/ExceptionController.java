@@ -40,15 +40,6 @@ public class ExceptionController {
                 MESSAGE, e.getMessage());
     }
 
-/*
-    @ExceptionHandler(BadRequestException.class)
-    @ResponseStatus(HttpStatus.BAD_REQUEST)
-    public Map<String, String> handleBadRequest(final RuntimeException e) {
-        log.error(e.getMessage(), e);
-        return Map.of(ERROR, "bad request",
-                MESSAGE, e.getMessage());
-    }
-*/
 
     @ExceptionHandler
     public ResponseEntity<ErrorResponse> handleEntityNotFoundException(final BadRequestException e) {

@@ -3,17 +3,14 @@ package ru.practicum.shareit.user.service;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
-import ru.practicum.shareit.exception.FindDuplicateException;
 import ru.practicum.shareit.exception.ItemDoesNotExistException;
 import ru.practicum.shareit.user.dto.UserDto;
 import ru.practicum.shareit.user.dto.UserMapper;
 import ru.practicum.shareit.user.model.User;
 import ru.practicum.shareit.user.storage.UserRepository;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 import java.util.stream.Collectors;
 
 @Service
@@ -27,7 +24,7 @@ public class UserService {
 
     public User create(User user) {
         log.info("Create request for user {}", user);
-        return  userRepository.save(user);
+        return userRepository.save(user);
     }
 
     public UserDto update(Long id, Map<String, Object> updates) {
@@ -35,7 +32,6 @@ public class UserService {
         checkUserExistence(id);
         User user = userRepository.findById(id).get();
         if (updates.containsKey("email")) {
-            String emailFromUpdate = String.valueOf(updates.get("email"));
             user.setEmail(String.valueOf(updates.get("email")));
         }
         if (updates.containsKey("name")) {
@@ -73,16 +69,4 @@ public class UserService {
             throw new ItemDoesNotExistException("User with id=" + id + " not exists.");
         }
     }
-
-/*
-    private void validateUniqueEmail(Long id, String email) {
-        List<User> usersWithTheSameEmail = new ArrayList<>(userRepository.findByEmail(email.trim()));
-        if (!usersWithTheSameEmail.isEmpty()) {
-            Long userId = usersWithTheSameEmail.get(0).getId();
-            if ((userId > 0 && id == 0) || (userId > 0 && !Objects.equals(userId, id))) {
-                throw new FindDuplicateException("User with email=" + email + " already exists.");
-            }
-        }
-    }
-*/
 }

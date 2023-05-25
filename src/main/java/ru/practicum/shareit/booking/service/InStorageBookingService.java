@@ -14,7 +14,6 @@ import ru.practicum.shareit.booking.storage.BookingSearch;
 import ru.practicum.shareit.booking.storage.BookingSearchFactory;
 import ru.practicum.shareit.exception.BadRequestException;
 import ru.practicum.shareit.exception.ItemDoesNotExistException;
-import ru.practicum.shareit.item.dto.ItemBookingDto;
 import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.item.storage.ItemRepository;
 import ru.practicum.shareit.user.storage.UserRepository;
@@ -113,15 +112,6 @@ public class InStorageBookingService implements BookingService {
         return collect;
     }
 
-    private ItemBookingDto getLastBooking(Long itemId) {
-        List<Booking> bookings = bookingRepository.searchByItemIdAndEndBeforeDate(itemId, LocalDateTime.now());
-        if (bookings.isEmpty()) {
-            return null;
-        }
-        Booking booking = bookings.get(0);
-        return new ItemBookingDto(booking.getId(), booking.getBooker().getId());
-    }
-
     private void checkItemOwner(Booking booking, Long requesterId) {
         if (!Objects.equals(booking.getBooker().getId(), requesterId)
                 && !Objects.equals(booking.getItem().getOwner().getId(), requesterId)) {
@@ -152,7 +142,7 @@ public class InStorageBookingService implements BookingService {
                 || start.isBefore(LocalDateTime.now())) {
             throw new BadRequestException("Booking start should be less than End and not be in past");
         }
-        if (!item.getAvailable() ) {
+        if (!item.getAvailable()) {
             throw new BadRequestException("Booking can't be made to unavailable item");
         }
 
@@ -178,7 +168,7 @@ public class InStorageBookingService implements BookingService {
 
     private void checkState(String state) {
         List<String> types = Arrays.stream(BookingSearchType.values())
-                .map(t -> t.toString())
+                .map(Enum::toString)
                 .collect(Collectors.toList());
         if (!types.contains(state)) {
             throw new BadRequestException("Unknown state: UNSUPPORTED_STATUS");
