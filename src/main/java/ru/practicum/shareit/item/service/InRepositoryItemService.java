@@ -165,7 +165,7 @@ public class InRepositoryItemService implements ItemService {
 
     private ItemBookingDto getLastBookingForItem(Long itemId) {
         List<Booking> bookings = new LinkedList<>(bookingRepository
-                .searchByItemIdAndEndBeforeDate(itemId, LocalDateTime.now(), "APPROVED"));
+                .searchByItemIdAndEndBeforeDate(itemId, LocalDateTime.now(), BookingStatus.APPROVED));
         if (bookings.isEmpty()) {
             System.out.println("getLastBookingForItem = null");
             return null;
@@ -180,7 +180,7 @@ public class InRepositoryItemService implements ItemService {
 
     private ItemBookingDto getFutureBookingFotItem(Long itemId) {
         List<Booking> bookings = new LinkedList<>(bookingRepository
-                .searchByItemIdAndStartAfterDate(itemId, LocalDateTime.now(), "APPROVED"));
+                .searchByItemIdAndStartAfterDate(itemId, LocalDateTime.now(), BookingStatus.APPROVED));
         if (bookings.isEmpty()) {
             System.out.println("getFutureBookingFotItem = null");
 
