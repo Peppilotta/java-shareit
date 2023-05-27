@@ -15,9 +15,6 @@ public interface UserMapper {
 
     UserDto toDto(User user);
 
-    @BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
-    User updateUserFromUserUpdateDto(UserUpdateDto userUpdateDto, @MappingTarget User user);
-
     @AfterMapping
     default void linkItems(@MappingTarget User user) {
         user.getItems().forEach(item -> item.setOwner(user));
@@ -25,6 +22,6 @@ public interface UserMapper {
 
     @AfterMapping
     default void linkComments(@MappingTarget User user) {
-        user.getComments().forEach(Comment -> Comment.setAuthor(user));
+        user.getComments().forEach(c -> c.setAuthor(user));
     }
 }

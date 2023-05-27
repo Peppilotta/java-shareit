@@ -83,7 +83,7 @@ public class InStorageBookingService implements BookingService {
         checkState(state);
         BookingSearch bookingSearch = BookingSearchFactory
                 .getSearchMethod(BookingSearchType.valueOf(state))
-                .orElseThrow(() -> new IllegalArgumentException());
+                .orElseThrow(IllegalArgumentException::new);
 
         List<BookingDto> bookingDtos = bookingSearch
                 .getBookings(ownerId, bookingRepository)

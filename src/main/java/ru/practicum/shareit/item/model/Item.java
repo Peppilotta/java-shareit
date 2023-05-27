@@ -45,7 +45,7 @@ public class Item {
     @Column
     private Integer requestId;
 
-    @ManyToOne//(fetch = FetchType.LAZY)
+    @ManyToOne
     @JoinColumn(name = "owner_id", nullable = false)
     @JsonIgnore
     private User owner;

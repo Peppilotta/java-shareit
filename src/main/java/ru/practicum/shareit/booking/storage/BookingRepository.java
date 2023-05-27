@@ -39,14 +39,11 @@ public interface BookingRepository extends JpaRepository<Booking, Long> {
     @Query("select b from Booking b where b.item.owner.id = ?1 and b.start <?2 and b.end > ?2  order by b.start DESC")
     List<Booking> searchByItemOwnerInPresentTime(@NonNull Long id, LocalDateTime date);
 
-    @Query("select b from Booking b where b.id = ?1 and b.booker.id = ?2 order by b.start DESC")
-    List<Booking> searchById(@NonNull Long itemId, @NonNull Long bookerId);
-
     @Query("select b from Booking b where b.item.id = ?1 and ((b.start < ?3 and b.end >?3)" +
-            " or (b.start < ?2 and b.end >?2) or (b.start > ?2 and b.end <?3)) order by b.start DESC")
+            " or (b.start < ?2 and b.end >?2) or (b.start > ?2 and b.end <?3)) order by b.start desc")
     List<Booking> searchByItemIdAndStartAddEnd(@NonNull Long itemId, LocalDateTime start, LocalDateTime end);
 
-    @Query("select b from Booking b where b.item.id = ?1 and b.end <?2  order by b.end DESC")
+    @Query("select b from Booking b where b.item.id = ?1 and b.end <?2 and b.status = ?3 order by b.end DESC")
     List<Booking> searchByItemIdAndEndBeforeDate(@NonNull Long itemId, LocalDateTime date, BookingStatus status);
 
     @Query("select b from Booking b where b.item.id = ?1 and b.start >?2 and b.status = ?3 order by b.start ASC")

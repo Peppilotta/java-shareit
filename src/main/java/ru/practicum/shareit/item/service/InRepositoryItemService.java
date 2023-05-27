@@ -27,7 +27,7 @@ import javax.persistence.EntityNotFoundException;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.LinkedList;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -92,8 +92,10 @@ public class InRepositoryItemService implements ItemService {
         Item item = itemRepository.findById(id).get();
         ItemDto itemDto = itemMapper.toDto(item);
         itemDto.setComments(commentMapper.map(item.getItemComments()));
-        itemDto.setLastBooking(getLastBookingForItem(id));
-        itemDto.setNextBooking(getFutureBookingFotItem(id));
+        if (Objects.equals(userId, item.getOwner().getId())) {
+             itemDto.setLastBooking(getLastBookingForItem(id));
+            itemDto.setNextBooking(getFutureBookingFotItem(id));
+        }
         return itemDto;
     }
 
@@ -103,15 +105,17 @@ public class InRepositoryItemService implements ItemService {
         checkUserExists(userId);
         List<Item> items = new ArrayList<>(itemRepository.findByOwnerId(userId));
         if (items.isEmpty()) {
-            return new ArrayList<ItemDto>();
+            return new ArrayList<>();
         }
         List<ItemDto> itemsDto = items.stream()
                 .map(itemMapper::toDto)
                 .collect(Collectors.toList());
         for (ItemDto itemDto : itemsDto) {
             Long itemDtoId = itemDto.getId();
-            itemDto.setLastBooking(getLastBookingForItem(itemDtoId));
-            itemDto.setNextBooking(getFutureBookingFotItem(itemDtoId));
+            if (Objects.equals(userId, itemDto.getOwner().getId())) {
+                itemDto.setLastBooking(getLastBookingForItem(itemDtoId));
+                itemDto.setNextBooking(getFutureBookingFotItem(itemDtoId));
+            }
         }
         return itemsDto;
     }
@@ -159,38 +163,37 @@ public class InRepositoryItemService implements ItemService {
             return comment;
         } else {
             throw new BadRequestException
-                    ("error while trying to add comment to item which hasn't  finished booking by user");
+                    ("error while trying to add comment to item which hasn't finished booking by user");
         }
     }
 
     private ItemBookingDto getLastBookingForItem(Long itemId) {
-        List<Booking> bookings = new LinkedList<>(bookingRepository
-                .searchByItemIdAndEndBeforeDate(itemId, LocalDateTime.now(), BookingStatus.APPROVED));
+        List<Booking> bookings = bookingRepository.searchByItemIdAndEndBeforeDate(itemId,
+                LocalDateTime.now(), BookingStatus.APPROVED);
         if (bookings.isEmpty()) {
-            System.out.println("getLastBookingForItem = null");
             return null;
         }
-        System.out.println("getLastBookingForItem");
-        for (Booking booking : bookings) {
-            System.out.println("id=" + booking.getId().toString() + ", bookerId=" + booking.getBooker().getId());
-        }
-        Booking booking = bookings.get(0);
+        Comparator<Booking> byDateEnd = Comparator.comparing(Booking::getEnd).reversed();
+        List<Booking> bookingsSorted = bookings.stream()
+                .sorted(byDateEnd)
+                .limit(1)
+                .collect(Collectors.toList());
+        Booking booking = bookingsSorted.get(0);
         return new ItemBookingDto(booking.getId(), booking.getBooker().getId());
     }
 
     private ItemBookingDto getFutureBookingFotItem(Long itemId) {
-        List<Booking> bookings = new LinkedList<>(bookingRepository
-                .searchByItemIdAndStartAfterDate(itemId, LocalDateTime.now(), BookingStatus.APPROVED));
+        List<Booking> bookings = bookingRepository.searchByItemIdAndStartAfterDate(itemId,
+                LocalDateTime.now(), BookingStatus.APPROVED);
         if (bookings.isEmpty()) {
-            System.out.println("getFutureBookingFotItem = null");
-
             return null;
         }
-        System.out.println("getFutureBookingFotItem");
-        for (Booking booking : bookings) {
-            System.out.println("id=" + booking.getId().toString() + ", bookerId=" + booking.getBooker().getId());
-        }
-        Booking booking = bookings.get(0);
+        Comparator<Booking> byDateStart = Comparator.comparing(Booking::getStart);
+        List<Booking> bookingsOrdered = bookings.stream()
+                .sorted(byDateStart)
+                .limit(1)
+                .collect(Collectors.toList());
+        Booking booking = bookingsOrdered.get(0);
         return new ItemBookingDto(booking.getId(), booking.getBooker().getId());
     }
 
@@ -198,28 +201,6 @@ public class InRepositoryItemService implements ItemService {
         Optional<Item> item = itemRepository.findById(id);
         log.debug("item with id: {} requested, returned result: {}", id, item);
         return item.orElseThrow(() -> new EntityNotFoundException("item with id: " + id + " doesn't exists"));
-    }
-
-    private ItemDto getItemDtoWithLastAndNextBookings(ItemDto itemDto, List<Booking> bookings) {
-        if (bookings.size() > 1) {
-            Long lastBookingId = getBookingId(bookings, 0);
-            Long lastBookerId = getBookerId(bookings, 0);
-            itemDto.setLastBooking(new ItemBookingDto(lastBookingId, lastBookerId));
-
-            Long nextBookingId = getBookingId(bookings, 1);
-            Long nextBookerId = getBookerId(bookings, 1);
-            itemDto.setNextBooking(new ItemBookingDto(nextBookingId, nextBookerId));
-        }
-
-        return itemDto;
-    }
-
-    private Long getBookingId(List<Booking> bookings, int rowNumber) {
-        return bookings.get(rowNumber).getId();
-    }
-
-    private Long getBookerId(List<Booking> bookings, int rowNumber) {
-        return bookings.get(rowNumber).getBooker().getId();
     }
 
     private void checkUserExists(Long id) {
