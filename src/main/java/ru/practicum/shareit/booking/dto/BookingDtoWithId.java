@@ -4,12 +4,13 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.RequiredArgsConstructor;
 
+import java.io.Serializable;
 import java.time.LocalDateTime;
 
 @Data
 @RequiredArgsConstructor
 @Builder
-public class BookingDtoWithId {
+public class BookingDtoWithId implements Serializable {
 
     private final Long id;
     private final LocalDateTime start;
