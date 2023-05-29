@@ -56,7 +56,8 @@ public class InRepositoryItemService implements ItemService {
 
     @Override
     public ItemDto createItem(Long userId, ItemDto itemDto) {
-        log.info("Create request for itemDto {}", itemDto);
+        log.info("New request");
+        log.info("Create request for itemDto={} from userId={} ", itemDto, userId);
         checkItemIsAvailable(itemDto);
         checkUserExists(userId);
         itemDto.setOwner(userMapper.toDto(userRepository.findById(userId).get()));
@@ -66,19 +67,23 @@ public class InRepositoryItemService implements ItemService {
 
     @Override
     public ItemDto updateItem(Long userId, Long id, Map<String, Object> updates) {
-        log.info("Update request for item with id={}", id);
+        log.debug("New request");
+        log.info("Update request for item with id={} from userId={} ", id, userId);
         checkUserExists(userId);
         checkItemExists(id);
         checkItemOwnerId(userId, id);
         Item item = itemMapper.toItem(this.getItem(userId, id));
         if (updates.containsKey("name")) {
             item.setName(String.valueOf(updates.get("name")));
+            log.debug("Name updated");
         }
         if (updates.containsKey("description")) {
             item.setDescription(String.valueOf(updates.get("description")));
+            log.debug("Description updated");
         }
         if (updates.containsKey("available")) {
             item.setAvailable(Boolean.parseBoolean(String.valueOf(updates.get("available"))));
+            log.debug("Available updated");
         }
         itemRepository.save(item);
         return itemMapper.toDto(item);
@@ -86,14 +91,18 @@ public class InRepositoryItemService implements ItemService {
 
     @Override
     public ItemDto getItem(Long userId, Long id) {
-        log.info("Get request for item with id={}", id);
+        log.debug("New request");
+        log.info("Get request getItemById from userId={} for item with id={}", userId, id);
         checkUserExists(userId);
         checkItemExists(id);
         Item item = itemRepository.findById(id).get();
         ItemDto itemDto = itemMapper.toDto(item);
+        log.debug("Get request getItemById - map comments to ItemDto");
         itemDto.setComments(commentMapper.map(item.getItemComments()));
         if (Objects.equals(userId, item.getOwner().getId())) {
-             itemDto.setLastBooking(getLastBookingForItem(id));
+            log.debug("Get request getItemById - setLastBooking");
+            itemDto.setLastBooking(getLastBookingForItem(id));
+            log.debug("Get request getItemById - setNextBooking");
             itemDto.setNextBooking(getFutureBookingFotItem(id));
         }
         return itemDto;
@@ -101,7 +110,8 @@ public class InRepositoryItemService implements ItemService {
 
     @Override
     public List<ItemDto> getItems(Long userId) {
-        log.info("Get request for items of user with id={}", userId);
+        log.debug("New request");
+        log.info("Get request for items from user with id={}", userId);
         checkUserExists(userId);
         List<Item> items = new ArrayList<>(itemRepository.findByOwnerId(userId));
         if (items.isEmpty()) {
@@ -122,16 +132,20 @@ public class InRepositoryItemService implements ItemService {
 
     @Override
     public ItemDto deleteItem(Long userId, Long id) {
+        log.debug("New request");
+        log.info("Delete request for itemId={} from user with id={}", id, userId);
         checkItemExists(id);
         Item item = itemRepository.findById(id).get();
         ItemDto itemDto = itemMapper.toDto(item);
         itemRepository.delete(item);
+        log.debug("Item deleted");
         return itemDto;
     }
 
     @Override
     public List<ItemDto> searchItem(Long userId, String keyWord) {
-        log.info("Get request for item owned by user with id={}", userId);
+        log.debug("New request");
+        log.info("Get request for item owned by user with id={} and label={}", userId, keyWord);
         if (keyWord.trim().isEmpty()) {
             return new ArrayList<>();
         }
@@ -146,6 +160,8 @@ public class InRepositoryItemService implements ItemService {
 
     @Override
     public Comment saveComment(Long itemId, Long userId, CommentDto commentDto) {
+        log.debug("New request");
+        log.info("Create comment request for itemId={} from userId={} and comment={}", itemId, userId, commentDto);
         checkUserExists(userId);
         checkCommentEmpty(commentDto);
         checkItemExists(itemId);
@@ -159,7 +175,6 @@ public class InRepositoryItemService implements ItemService {
             comment.setCreated(LocalDateTime.now());
             commentRepository.save(comment);
             log.debug("new comment for item: {} created: {}", itemId, comment);
-
             return comment;
         } else {
             throw new BadRequestException
@@ -170,6 +185,7 @@ public class InRepositoryItemService implements ItemService {
     private ItemBookingDto getLastBookingForItem(Long itemId) {
         List<Booking> bookings = bookingRepository.searchByItemIdAndEndBeforeDate(itemId,
                 LocalDateTime.now(), BookingStatus.APPROVED);
+        log.debug("Bookings for itemId= {} in the past = {}", itemId, bookings.size());
         if (bookings.isEmpty()) {
             return null;
         }
@@ -185,6 +201,7 @@ public class InRepositoryItemService implements ItemService {
     private ItemBookingDto getFutureBookingFotItem(Long itemId) {
         List<Booking> bookings = bookingRepository.searchByItemIdAndStartAfterDate(itemId,
                 LocalDateTime.now(), BookingStatus.APPROVED);
+        log.debug("Bookings for itemId={} in the future = {}", itemId, bookings.size());
         if (bookings.isEmpty()) {
             return null;
         }

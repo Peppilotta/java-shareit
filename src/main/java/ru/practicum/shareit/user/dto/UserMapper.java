@@ -1,10 +1,8 @@
 package ru.practicum.shareit.user.dto;
 
 import org.mapstruct.AfterMapping;
-import org.mapstruct.BeanMapping;
 import org.mapstruct.Mapper;
 import org.mapstruct.MappingTarget;
-import org.mapstruct.NullValuePropertyMappingStrategy;
 import org.mapstruct.ReportingPolicy;
 import ru.practicum.shareit.user.model.User;
 

@@ -12,7 +12,7 @@ import org.springframework.web.bind.annotation.RestController;
 import ru.practicum.shareit.user.dto.UserDto;
 import ru.practicum.shareit.user.dto.UserMapper;
 import ru.practicum.shareit.user.model.User;
-import ru.practicum.shareit.user.service.UserService;
+import ru.practicum.shareit.user.service.InStorageUserService;
 
 import javax.validation.Valid;
 import java.util.List;
@@ -22,32 +22,32 @@ import java.util.Map;
 @RequestMapping(path = "/users")
 @RequiredArgsConstructor
 public class UserController {
-    private final UserService userService;
+    private final InStorageUserService inStorageUserService;
     private final UserMapper userMapper;
 
     @PostMapping
     public UserDto create(@RequestBody @Valid final UserDto userDto) {
-        User user = userService.create(userMapper.toUser(userDto));
+        User user = inStorageUserService.create(userMapper.toUser(userDto));
         return userMapper.toDto(user);
     }
 
     @PatchMapping("/{id}")
     public UserDto update(@RequestBody Map<String, Object> userUpdates, @PathVariable long id) {
-        return userService.update(id, userUpdates);
+        return inStorageUserService.update(id, userUpdates);
     }
 
     @GetMapping
     public List<UserDto> getUsers() {
-        return userService.getUsers();
+        return inStorageUserService.getUsers();
     }
 
     @GetMapping("/{id}")
     public UserDto getUser(@PathVariable long id) {
-        return userService.getUser(id);
+        return inStorageUserService.getUser(id);
     }
 
     @DeleteMapping("/{id}")
     public UserDto deleteUser(@PathVariable long id) {
-        return userService.deleteUser(id);
+        return inStorageUserService.deleteUser(id);
     }
 }

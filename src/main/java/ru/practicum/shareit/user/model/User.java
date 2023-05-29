@@ -36,12 +36,12 @@ public class User {
     @Column(name = "email", nullable = false, length = 512, unique = true)
     private String email;
 
-    @Column(name = "name", nullable = false, length = 255)
+    @Column(name = "name", nullable = false)
     private String name;
 
     @OneToMany(fetch = FetchType.EAGER, mappedBy = "owner")
     private Set<Item> items;
 
     @OneToMany(fetch = FetchType.EAGER, mappedBy = "author", cascade = CascadeType.ALL)
-    private Set<Comment> Comments;
+    private Set<Comment> comments;
 }

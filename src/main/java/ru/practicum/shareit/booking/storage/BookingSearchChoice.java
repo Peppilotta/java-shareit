@@ -10,7 +10,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
-public class BookingSearchFactory {
+public class BookingSearchChoice {
 
     static Map<BookingSearchType, BookingSearch> searchMap = new HashMap<>();
 

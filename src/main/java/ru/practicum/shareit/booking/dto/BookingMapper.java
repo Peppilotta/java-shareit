@@ -7,7 +7,7 @@ import ru.practicum.shareit.booking.model.BookingStatus;
 import ru.practicum.shareit.item.dto.ItemMapper;
 import ru.practicum.shareit.item.service.ItemService;
 import ru.practicum.shareit.user.dto.UserMapper;
-import ru.practicum.shareit.user.service.UserService;
+import ru.practicum.shareit.user.service.InStorageUserService;
 
 import java.util.Objects;
 
@@ -15,7 +15,7 @@ import java.util.Objects;
 @AllArgsConstructor
 public class BookingMapper {
 
-    private final UserService userService;
+    private final InStorageUserService inStorageUserService;
 
     private final ItemService itemService;
 
@@ -35,7 +35,7 @@ public class BookingMapper {
                 .end(bookingDto.getEnd())
                 .status(status)
                 .item(itemMapper.toItem(itemService.getItem(userId, itemId)))
-                .booker(userMapper.toUser(userService.getUser(userId)))
+                .booker(userMapper.toUser(inStorageUserService.getUser(userId)))
                 .build();
     }
 

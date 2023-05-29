@@ -40,7 +40,6 @@ public class ExceptionController {
                 MESSAGE, e.getMessage());
     }
 
-
     @ExceptionHandler
     public ResponseEntity<ErrorResponse> handleEntityNotFoundException(final BadRequestException e) {
         log.warn(e.getMessage());
