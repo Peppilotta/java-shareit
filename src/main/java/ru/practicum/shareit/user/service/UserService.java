@@ -16,16 +16,16 @@ import java.util.stream.Collectors;
 @Service
 @Slf4j
 @RequiredArgsConstructor
-public class InStorageUserService {
+public class UserService {
 
     private final UserRepository userRepository;
 
     private final UserMapper userMapper;
 
-    public User create(User user) {
+    public UserDto create(UserDto user) {
         log.info("New request");
         log.info("Create request for user {}", user);
-        return userRepository.save(user);
+        return userMapper.toDto(userRepository.save(userMapper.toUser(user)));
     }
 
     public UserDto update(Long id, Map<String, Object> updates) {

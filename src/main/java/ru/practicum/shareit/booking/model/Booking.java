@@ -32,7 +32,6 @@ import java.time.LocalDateTime;
 @Table(name = "bookings")
 @AllArgsConstructor
 @NoArgsConstructor
-//@RequiredArgsConstructor
 @Builder
 public class Booking {
 

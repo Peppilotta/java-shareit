@@ -2,23 +2,28 @@ package ru.practicum.shareit.booking.dto;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
-import lombok.Data;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+import lombok.ToString;
 import ru.practicum.shareit.booking.model.BookingStatus;
 import ru.practicum.shareit.item.dto.ItemDto;
 import ru.practicum.shareit.user.dto.UserDto;
 
-import java.io.Serializable;
 import java.time.LocalDateTime;
 
-@Data
+@Getter
+@Setter
+@ToString
+@NoArgsConstructor
 @AllArgsConstructor
-@Builder
-public class BookingDto implements Serializable {
+@Builder(toBuilder = true)
+public class BookingDto {
 
-    private final Long id;
-    private final LocalDateTime start;
-    private final LocalDateTime end;
-    private final BookingStatus status;
-    private final ItemDto item;
-    private final UserDto booker;
+    private Long id;
+    private LocalDateTime start;
+    private LocalDateTime end;
+    private BookingStatus status;
+    private ItemDto item;
+    private UserDto booker;
 }
