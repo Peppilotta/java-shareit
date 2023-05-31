@@ -36,7 +36,7 @@ public class InMemoryItemStorage implements ItemStorage {
 
     @Override
     public List<Item> getItems(long userId) {
-        return items.values().stream().filter(i -> Objects.equals(i.getUserId(), userId))
+        return items.values().stream().filter(i -> Objects.equals(i.getOwner().getId(), userId))
                 .collect(Collectors.toList());
     }
 
@@ -53,7 +53,7 @@ public class InMemoryItemStorage implements ItemStorage {
         String text = query.toLowerCase();
         return items.values().stream()
                 .filter(i -> (i.getName().toLowerCase().contains(text) ||
-                        i.getDescription().toLowerCase().contains(text)) && i.isAvailable())
+                        i.getDescription().toLowerCase().contains(text)) && i.getAvailable())
                 .collect(Collectors.toList());
     }
 

@@ -9,6 +9,8 @@ import lombok.ToString;
 
 import javax.validation.constraints.Email;
 import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.NotNull;
+import java.io.Serializable;
 
 @Getter
 @Setter
@@ -16,14 +18,17 @@ import javax.validation.constraints.NotBlank;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder(toBuilder = true)
-public class UserDto {
+public class UserDto implements Serializable {
 
-    private long id;
+    private Long id;
 
-    @NotBlank(message = "Email absent")
-    @Email(message = "Wrong email")
+    @NotNull
+    private String name;
+
+    @NotBlank
+    @Email
     private String email;
 
-    @NotBlank(message = "Wrong name")
-    private String name;
+    @Email
+    private String registrationDate;
 }

@@ -1,6 +1,6 @@
 package ru.practicum.shareit.user.controller;
 
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
@@ -18,17 +18,14 @@ import java.util.Map;
 
 @RestController
 @RequestMapping(path = "/users")
+@RequiredArgsConstructor
 public class UserController {
+
     private final UserService userService;
 
-    @Autowired
-    public UserController(UserService userService) {
-        this.userService = userService;
-    }
-
     @PostMapping
-    public UserDto create(@RequestBody @Valid final UserDto user) {
-        return userService.create(user);
+    public UserDto create(@RequestBody @Valid final UserDto userDto) {
+        return userService.create(userDto);
     }
 
     @PatchMapping("/{id}")

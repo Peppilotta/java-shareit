@@ -1,27 +1,13 @@
 package ru.practicum.shareit.item.dto;
 
-import org.springframework.stereotype.Component;
+import org.mapstruct.Mapper;
+import org.mapstruct.ReportingPolicy;
 import ru.practicum.shareit.item.model.Item;
 
-@Component
-public class ItemMapper {
+@Mapper(unmappedTargetPolicy = ReportingPolicy.IGNORE, componentModel = "spring")
+public interface ItemMapper {
 
-    public Item mapFromItemDto(long userId, ItemDto itemDto) {
-        return new Item().toBuilder()
-                .id(itemDto.getId())
-                .userId(userId)
-                .name(itemDto.getName())
-                .description(itemDto.getDescription())
-                .available(itemDto.isAvailable())
-                .build();
-    }
+    Item toItem(ItemDto itemDto);
 
-    public ItemDto mapFromItem(Item item) {
-        return new ItemDto().toBuilder()
-                .id(item.getId())
-                .name(item.getName())
-                .description(item.getDescription())
-                .available(item.isAvailable())
-                .build();
-    }
+    ItemDto toDto(Item item);
 }
