@@ -51,7 +51,7 @@ public class BookingService {
         Booking booking = toBookingWithItemAndBooker(bookingDto, userId);
         checkBookingBasicConstraints(booking, userId);
         booking.setStatus(BookingStatus.WAITING);
-        log.debug("Bookings for user id: {} saved: {}", userId, booking);
+        log.info("Bookings for user id: {} saved: {}", userId, booking);
         return toDtoWithItemAndBooker(bookingRepository.save(booking));
     }
 
@@ -70,7 +70,7 @@ public class BookingService {
         }
         booking.setStatus(newStatus);
         bookingRepository.save(booking);
-        log.debug("Bookings  id: {} change status to: {}", bookingId, newStatus);
+        log.info("Bookings  id: {} change status to: {}", bookingId, newStatus);
         return toDtoWithItemAndBooker(booking);
     }
 
@@ -96,7 +96,7 @@ public class BookingService {
                 .stream()
                 .filter(Objects::nonNull).map(this::toDtoWithItemAndBooker)
                 .collect(Collectors.collectingAndThen(Collectors.toList(), Collections::unmodifiableList));
-        log.debug("Bookings for owner id: {} and state: {} returned collection: {}", ownerId, state, bookingDtos);
+        log.info("Bookings for owner id: {} and state: {} returned collection: {}", ownerId, state, bookingDtos);
         return bookingDtos;
     }
 

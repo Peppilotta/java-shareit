@@ -46,7 +46,7 @@ public class BookingSearch {
             case CURRENT:
                 return bookingRepository.searchByItemOwnerInPresentTime(ownerId, LocalDateTime.now());
             case WAITING:
-                return bookingRepository.searchByBookerAndStatus(ownerId, BookingStatus.WAITING);
+                return bookingRepository.searchByItemOwnerAndStatus(ownerId, BookingStatus.WAITING);
             case REJECTED:
                 return bookingRepository.searchByItemOwnerAndStatus(ownerId, BookingStatus.REJECTED);
             default:
