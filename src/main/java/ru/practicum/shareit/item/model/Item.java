@@ -19,6 +19,7 @@ import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
+import java.util.List;
 import java.util.Set;
 
 @Table(name = "items")
@@ -54,5 +55,5 @@ public class Item {
     private Set<Booking> itemBookings;
 
     @OneToMany(fetch = FetchType.EAGER, mappedBy = "item", cascade = CascadeType.ALL)
-    private Set<Comment> itemComments;
+    private List<Comment> itemComments;
 }

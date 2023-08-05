@@ -12,7 +12,7 @@ import ru.practicum.shareit.user.dto.UserDto;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
-import java.util.Set;
+import java.util.List;
 
 @Getter
 @Setter
@@ -41,7 +41,7 @@ public class ItemDto {
 
     private ItemBookingDto nextBooking;
 
-    private Set<CommentDto> comments;
+    private List<CommentDto> comments;
 
     private UserDto owner;
 }

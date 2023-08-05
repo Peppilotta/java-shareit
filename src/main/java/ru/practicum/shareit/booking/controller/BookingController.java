@@ -19,7 +19,7 @@ import java.util.List;
 @RestController
 @RequestMapping("/bookings")
 public class BookingController {
-    private static final String AUTHORIZATION_FOR_USER = "X-Sharer-User-Id";
+    private static final String USER_ID_HEADER = "X-Sharer-User-Id";
     private final BookingService bookingService;
 
     public BookingController(BookingService bookingService) {
@@ -28,32 +28,32 @@ public class BookingController {
 
     @PostMapping()
     public BookingDto create(@Valid @RequestBody BookingDtoWithId bookingCreateDto,
-                             @RequestHeader(AUTHORIZATION_FOR_USER) long userId) {
+                             @RequestHeader(USER_ID_HEADER) long userId) {
         return bookingService.save(bookingCreateDto, userId);
     }
 
-    @PatchMapping("{bookingId}")
+    @PatchMapping("/{bookingId}")
     public BookingDto update(@PathVariable long bookingId, @RequestParam Boolean approved,
-                             @RequestHeader(AUTHORIZATION_FOR_USER) long userId) {
+                             @RequestHeader(USER_ID_HEADER) long userId) {
         return bookingService.changeBookingStatus(bookingId, approved, userId);
     }
 
-    @GetMapping("{bookingId}")
+    @GetMapping("/{bookingId}")
     public BookingDto getBookingById(@PathVariable long bookingId,
-                                     @RequestHeader(AUTHORIZATION_FOR_USER) long userId) {
+                                     @RequestHeader(USER_ID_HEADER) long userId) {
         return bookingService.getBooking(userId, bookingId);
     }
 
     @GetMapping("")
     public List<BookingDto> getBookingByState(@RequestParam(defaultValue = "ALL", required = false) String state,
-                                              @RequestHeader(AUTHORIZATION_FOR_USER) long userId) {
+                                              @RequestHeader(USER_ID_HEADER) long userId) {
         return bookingService.getBookingByState(userId, state);
     }
 
     @GetMapping("/owner")
     public List<BookingDto> getItemsByStateAndOwner
             (@RequestParam(defaultValue = "ALL", required = false) String state,
-             @RequestHeader(AUTHORIZATION_FOR_USER) long userId) {
+             @RequestHeader(USER_ID_HEADER) long userId) {
         return bookingService.getBookingByStateAndOwner(userId, state);
     }
 }

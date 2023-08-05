@@ -6,6 +6,7 @@ import org.mapstruct.Mapping;
 import org.mapstruct.ReportingPolicy;
 import ru.practicum.shareit.comment.model.Comment;
 
+import java.util.List;
 import java.util.Set;
 
 @Mapper(unmappedTargetPolicy = ReportingPolicy.IGNORE, componentModel = "spring")
@@ -18,5 +19,5 @@ public interface CommentMapper {
     @InheritInverseConfiguration(name = "toComment")
     CommentDto toDto(Comment comment);
 
-    Set<CommentDto> map(Set<Comment> comments);
+    List<CommentDto> map(List<Comment> comments);
 }
