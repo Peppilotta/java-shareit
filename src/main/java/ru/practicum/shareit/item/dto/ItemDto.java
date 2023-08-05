@@ -6,10 +6,14 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
+import ru.practicum.shareit.comment.dto.CommentDto;
+import ru.practicum.shareit.user.dto.UserDto;
 
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
+import java.util.List;
+import java.util.Set;
 
 @Getter
 @Setter
@@ -32,5 +36,13 @@ public class ItemDto {
     @NotNull(message = "Item availability absent")
     private boolean available;
 
-    private long necessity = 0;
+    private Long requestId;
+
+    private ItemBookingDto lastBooking;
+
+    private ItemBookingDto nextBooking;
+
+    private Set<CommentDto> comments;
+
+    private UserDto owner;
 }

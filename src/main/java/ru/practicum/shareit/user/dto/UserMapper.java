@@ -1,24 +1,25 @@
 package ru.practicum.shareit.user.dto;
 
-import org.springframework.stereotype.Component;
+import org.mapstruct.AfterMapping;
+import org.mapstruct.Mapper;
+import org.mapstruct.MappingTarget;
+import org.mapstruct.ReportingPolicy;
 import ru.practicum.shareit.user.model.User;
 
-@Component
-public class UserMapper {
+@Mapper(unmappedTargetPolicy = ReportingPolicy.IGNORE, componentModel = "spring")
+public interface UserMapper {
 
-    public User toUser(UserDto userDto) {
-        return new User().toBuilder()
-                .id(userDto.getId())
-                .name(userDto.getName())
-                .email(userDto.getEmail())
-                .build();
+    User toUser(UserDto userDto);
+
+    UserDto toDto(User user);
+
+    @AfterMapping
+    default void linkItems(@MappingTarget User user) {
+        user.getItems().forEach(item -> item.setOwner(user));
     }
 
-    public UserDto toDto(User user) {
-        return new UserDto().toBuilder()
-                .id(user.getId())
-                .name(user.getName())
-                .email(user.getEmail())
-                .build();
+    @AfterMapping
+    default void linkComments(@MappingTarget User user) {
+        user.getComments().forEach(c -> c.setAuthor(user));
     }
 }

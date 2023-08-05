@@ -1,91 +1,77 @@
 package ru.practicum.shareit.user.service;
 
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
-import ru.practicum.shareit.exception.FindDuplicateException;
 import ru.practicum.shareit.exception.ItemDoesNotExistException;
 import ru.practicum.shareit.user.dto.UserDto;
 import ru.practicum.shareit.user.dto.UserMapper;
 import ru.practicum.shareit.user.model.User;
-import ru.practicum.shareit.user.storage.UserStorage;
+import ru.practicum.shareit.user.storage.UserRepository;
 
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 import java.util.stream.Collectors;
 
 @Service
 @Slf4j
+@RequiredArgsConstructor
 public class UserService {
 
-    private final UserStorage userStorage;
+    private final UserRepository userRepository;
 
     private final UserMapper userMapper;
 
-    public UserService(UserStorage userStorage, UserMapper userMapper) {
-        this.userStorage = userStorage;
-        this.userMapper = userMapper;
+    public UserDto create(UserDto user) {
+        log.info("New request");
+        log.info("Create request for user {}", user);
+        return userMapper.toDto(userRepository.save(userMapper.toUser(user)));
     }
 
-    public UserDto create(UserDto userDto) {
-        log.info("Create request for user {}", userDto);
-        validateUniqueEmail(0, userDto.getEmail());
-        User user = userStorage.createUser(userMapper.toUser(userDto));
-        return userMapper.toDto(user);
-    }
-
-    public UserDto update(long id, Map<String, Object> updates) {
+    public UserDto update(Long id, Map<String, Object> updates) {
+        log.info("New request");
         log.info("Update request for user with id={}", id);
         checkUserExistence(id);
-        User user = userStorage.getUser(id);
+        User user = userRepository.findById(id).get();
         if (updates.containsKey("email")) {
-            String emailFromUpdate = String.valueOf(updates.get("email"));
-            if (!Objects.equals(emailFromUpdate.trim().toLowerCase(),
-                    user.getEmail().trim().toLowerCase())) {
-                validateUniqueEmail(id, emailFromUpdate);
-            }
             user.setEmail(String.valueOf(updates.get("email")));
         }
         if (updates.containsKey("name")) {
             user.setName(String.valueOf(updates.get("name")));
         }
-
-        return userMapper.toDto(userStorage.updateUser(user));
+        userRepository.save(user);
+        return userMapper.toDto(user);
     }
 
     public List<UserDto> getUsers() {
+        log.info("New request");
         log.info("GET request - all users");
-        return userStorage.getUsers()
+        return userRepository.findAll()
                 .stream()
                 .map(userMapper::toDto)
                 .collect(Collectors.toList());
     }
 
-    public UserDto getUser(long id) {
+    public UserDto getUser(Long id) {
+        log.info("New request");
         log.info("GET request - user id={} ", id);
         checkUserExistence(id);
-        return userMapper.toDto(userStorage.getUser(id));
+        return userMapper.toDto(userRepository.findById(id).get());
     }
 
-    public UserDto deleteUser(long id) {
+    public UserDto deleteUser(Long id) {
+        log.info("New request");
         log.info("Delete request - user id={} ", id);
         checkUserExistence(id);
-        User deletedUser = userStorage.getUser(id);
-        userStorage.deleteUser(id);
-        log.info("User deleted: {} ", deletedUser.toString());
+        User deletedUser = userRepository.findById(id).get();
+        userRepository.deleteById(id);
+        log.info("User deleted: {} ", deletedUser);
         return userMapper.toDto(deletedUser);
     }
 
-    private void checkUserExistence(long id) {
-        if (!userStorage.checkUserExistence(id)) {
+    private void checkUserExistence(Long id) {
+        if (!userRepository.existsById(id)) {
             throw new ItemDoesNotExistException("User with id=" + id + " not exists.");
-        }
-    }
-
-    private void validateUniqueEmail(long id, String email) {
-        long userId = userStorage.getUserIdUsingEmail(email);
-        if ((userId > 0 && id == 0) || (userId > 0 && userId != id)) {
-            throw new FindDuplicateException("User with email=" + email + " already exists.");
         }
     }
 }
