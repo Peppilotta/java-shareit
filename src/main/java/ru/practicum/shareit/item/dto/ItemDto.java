@@ -13,6 +13,7 @@ import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 import java.util.List;
+import java.util.Set;
 
 @Getter
 @Setter
@@ -41,7 +42,7 @@ public class ItemDto {
 
     private ItemBookingDto nextBooking;
 
-    private List<CommentDto> comments;
+    private Set<CommentDto> comments;
 
     private UserDto owner;
 }

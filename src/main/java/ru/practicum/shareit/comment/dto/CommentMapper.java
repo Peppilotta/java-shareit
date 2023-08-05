@@ -19,5 +19,5 @@ public interface CommentMapper {
     @InheritInverseConfiguration(name = "toComment")
     CommentDto toDto(Comment comment);
 
-    List<CommentDto> map(List<Comment> comments);
+    Set<CommentDto> map(Set<Comment> comments);
 }
