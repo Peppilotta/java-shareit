@@ -23,8 +23,10 @@ import ru.practicum.shareit.user.storage.UserRepository;
 import java.time.LocalDateTime;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Primary
@@ -85,8 +87,10 @@ public class BookingService {
         return toDtoWithItemAndBooker(booking);
     }
 
-    public List<BookingDto> getBookingByState(Long ownerId, String state) {
+    public List<BookingDto> getBookingByState(Long ownerId, String state,
+                                              Optional<Integer> from, Optional<Integer> size) {
         log.info("New request get booking by state");
+        checkFromAndSize(from, size);
         checkUserExists(ownerId);
         checkState(state);
         BookingSearchType type = BookingSearchType.valueOf(state);
@@ -94,25 +98,46 @@ public class BookingService {
         List<BookingDto> bookingDtos = bookingSearch
                 .getBookings(ownerId, type)
                 .stream()
-                .filter(Objects::nonNull).map(this::toDtoWithItemAndBooker)
+                .map(this::toDtoWithItemAndBooker)
                 .collect(Collectors.collectingAndThen(Collectors.toList(), Collections::unmodifiableList));
+        if (from.isPresent()) {
+            Integer fromExist = from.get();
+            int totalItems = bookingDtos.size();
+            int first = (int) (fromExist == 0 ? fromExist : --fromExist);
+            if (size.isPresent()) {
+                totalItems = size.get() + first -1;
+            }
+            log.info("First = {}  and last = {} ",first,totalItems);
+            return bookingDtos.subList(first, totalItems);
+        }
         log.info("Bookings for owner id: {} and state: {} returned collection: {}", ownerId, state, bookingDtos);
         return bookingDtos;
     }
 
-    public List<BookingDto> getBookingByStateAndOwner(Long ownerId, String state) {
+    public List<BookingDto> getBookingByStateAndOwner(Long ownerId, String state,
+                                                      Optional<Integer> from, Optional<Integer> size) {
         log.info("New request get booking by state and owner");
         checkUserExists(ownerId);
         checkState(state);
+        checkFromAndSize(from, size);
         BookingSearchType type = BookingSearchType.valueOf(state);
         BookingSearch bookingSearch = new BookingSearch(bookingRepository);
 
         List<BookingDto> bookingDtos = bookingSearch
                 .getBookingsByItemsOwner(ownerId, type)
                 .stream()
-                .filter(Objects::nonNull)
                 .map(this::toDtoWithItemAndBooker)
                 .collect(Collectors.collectingAndThen(Collectors.toList(), Collections::unmodifiableList));
+        if (from.isPresent()) {
+            Integer fromExist = from.get();
+            int totalItems = (int) (itemRepository.count() + 1);
+            int first = (int) (fromExist >= 1 ? --fromExist : fromExist);
+            if (size.isPresent()) {
+                totalItems = size.get() + first - 1;
+            }
+            log.info("First = {}  and last = {} ",first,totalItems);
+            return bookingDtos.subList(first, totalItems);
+        }
         log.info("Bookings for owner id: {} and state: {} returned collection: {}", ownerId, state, bookingDtos);
         return bookingDtos;
     }
@@ -194,6 +219,15 @@ public class BookingService {
                 .collect(Collectors.toList());
         if (!types.contains(state)) {
             throw new BadRequestException("Unknown state: UNSUPPORTED_STATUS");
+        }
+    }
+
+    private void checkFromAndSize(Optional<Integer> from, Optional<Integer> size) {
+        if (from.isPresent() && from.get() < 0) {
+            throw new BadRequestException("Start position must be >= 0, not " + from);
+        }
+        if (size.isPresent() && size.get() <= 0) {
+            throw new BadRequestException("Size must be >= 0, not " + size);
         }
     }
 }

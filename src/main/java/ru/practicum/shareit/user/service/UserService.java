@@ -52,11 +52,14 @@ public class UserService {
                 .collect(Collectors.toList());
     }
 
-    public UserDto getUser(Long id) {
+    public UserDto getUserDto(Long id) {
+        return userMapper.toDto(getUser(id));
+    }
+    public User getUser(Long id) {
         log.info("New request");
         log.info("GET request - user id={} ", id);
         checkUserExistence(id);
-        return userMapper.toDto(userRepository.findById(id).get());
+        return userRepository.findById(id).get();
     }
 
     public UserDto deleteUser(Long id) {

@@ -43,7 +43,7 @@ public class Item {
     private Boolean available;
 
     @Column
-    private Integer requestId;
+    private Long requestId;
 
     @ManyToOne
     @JoinColumn(name = "owner_id", nullable = false)

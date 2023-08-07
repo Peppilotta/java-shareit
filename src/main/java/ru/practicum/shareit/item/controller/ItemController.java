@@ -18,6 +18,7 @@ import ru.practicum.shareit.item.service.ItemService;
 import javax.validation.Valid;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 @RestController
 @RequestMapping("/items")
@@ -29,8 +30,10 @@ public class ItemController {
     private final ItemService itemService;
 
     @GetMapping
-    public List<ItemDto> getItems(@RequestHeader(USER_ID_HEADER) long userId) {
-        return itemService.getItems(userId);
+    public List<ItemDto> getItems(@RequestHeader(USER_ID_HEADER) long userId,
+                                  @RequestParam(required = false) Optional<Integer> from,
+                                  @RequestParam(required = false) Optional<Integer> size) {
+        return itemService.getItems(userId, from, size);
     }
 
     @GetMapping("/{itemId}")
@@ -57,8 +60,11 @@ public class ItemController {
     }
 
     @GetMapping("/search")
-    public List<ItemDto> search(@RequestHeader(USER_ID_HEADER) long userId, @RequestParam String text) {
-        return itemService.searchItem(userId, text);
+    public List<ItemDto> search(@RequestHeader(USER_ID_HEADER) long userId,
+                                @RequestParam(required = false) Optional<Integer> from,
+                                @RequestParam(required = false) Optional<Integer> size,
+                                @RequestParam String text) {
+        return itemService.searchItem(userId, text, from, size);
     }
 
     @PostMapping("/{itemId}/comment")

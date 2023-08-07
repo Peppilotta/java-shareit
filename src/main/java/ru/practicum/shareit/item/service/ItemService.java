@@ -1,5 +1,6 @@
 package ru.practicum.shareit.item.service;
 
+import com.querydsl.jpa.impl.JPAQueryFactory;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.Primary;
@@ -18,12 +19,15 @@ import ru.practicum.shareit.item.dto.ItemBookingDto;
 import ru.practicum.shareit.item.dto.ItemDto;
 import ru.practicum.shareit.item.dto.ItemMapper;
 import ru.practicum.shareit.item.model.Item;
+import ru.practicum.shareit.item.model.QItem;
 import ru.practicum.shareit.item.storage.ItemRepository;
 import ru.practicum.shareit.user.dto.UserMapper;
 import ru.practicum.shareit.user.model.User;
 import ru.practicum.shareit.user.storage.UserRepository;
 
+import javax.persistence.EntityManager;
 import javax.persistence.EntityNotFoundException;
+import javax.persistence.PersistenceContext;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -53,6 +57,9 @@ public class ItemService {
     private final ItemMapper itemMapper;
 
     private final UserMapper userMapper;
+
+    @PersistenceContext
+    EntityManager em;
 
     public ItemDto createItem(Long userId, ItemDto itemDto) {
         log.info("New request");
@@ -106,15 +113,27 @@ public class ItemService {
         return itemDto;
     }
 
-    public List<ItemDto> getItems(Long userId) {
-        log.debug("New request");
-        log.info("Get request for items from user with id={}", userId);
+    public List<ItemDto> getItems(Long userId, Optional<Integer> from, Optional<Integer> size) {
+        checkFromAndSize(from, size);
         checkUserExists(userId);
-        List<Item> items = new ArrayList<>(itemRepository.findByOwnerId(userId));
-        if (items.isEmpty()) {
-            return new ArrayList<>();
+        QItem qItem = QItem.item;
+        JPAQueryFactory queryFactory = new JPAQueryFactory(em);
+        long totalItems = itemRepository.count() + 1;
+        Integer fromExist = 0;
+        if (from.isPresent()) {
+            fromExist = from.get();
+            int first = fromExist >= 1 ? --fromExist : fromExist;
+            if (size.isPresent()) {
+                totalItems = size.get();
+            }
         }
-        List<ItemDto> itemsDto = items.stream()
+        List<ItemDto> itemsDto = queryFactory.selectFrom(qItem)
+                .where(qItem.owner.id.in(userId))
+                .orderBy(qItem.id.asc())
+                .limit(totalItems)
+                .offset(fromExist)
+                .fetch()
+                .stream()
                 .map(itemMapper::toDto)
                 .collect(Collectors.toList());
         for (ItemDto itemDto : itemsDto) {
@@ -124,7 +143,8 @@ public class ItemService {
                 itemDto.setNextBooking(getFutureBookingFotItem(itemDtoId));
             }
         }
-        return itemsDto;
+        return itemsDto.stream()
+                .collect(Collectors.collectingAndThen(Collectors.toList(), Collections::unmodifiableList));
     }
 
     public ItemDto deleteItem(Long userId, Long id) {
@@ -138,18 +158,39 @@ public class ItemService {
         return itemDto;
     }
 
-    public List<ItemDto> searchItem(Long userId, String keyWord) {
+    public List<ItemDto> searchItem(Long userId, String keyWord, Optional<Integer> from, Optional<Integer> size) {
         log.debug("New request");
         log.info("Get request for item owned by user with id={} and label={}", userId, keyWord);
+        checkFromAndSize(from, size);
         if (keyWord.trim().isEmpty()) {
             return new ArrayList<>();
         }
         checkUserExists(userId);
+
         String query = "%" + keyWord.trim().toLowerCase() + "%";
-        return new ArrayList<>(itemRepository.findByNameOrDescription(query)
+        List<ItemDto> itemsDto = itemRepository.findByNameOrDescription(query)
                 .stream()
                 .map(itemMapper::toDto)
-                .collect(Collectors.collectingAndThen(Collectors.toList(), Collections::unmodifiableList)));
+                .collect(Collectors.collectingAndThen(Collectors.toList(), Collections::unmodifiableList));
+        int totalItems = (int) itemRepository.count() + 1;
+        Integer fromExist = 0;
+        if (from.isPresent()) {
+            fromExist = from.get();
+            int first = fromExist >= 1 ? --fromExist : fromExist;
+            if (size.isPresent()) {
+                totalItems = size.get() + first - 1;
+            }
+           return itemsDto.subList(first, totalItems);
+        }
+        for (ItemDto itemDto : itemsDto) {
+            Long itemDtoId = itemDto.getId();
+            if (Objects.equals(userId, itemDto.getOwner().getId())) {
+                itemDto.setLastBooking(getLastBookingForItem(itemDtoId));
+                itemDto.setNextBooking(getFutureBookingFotItem(itemDtoId));
+            }
+        }
+
+        return itemsDto;
     }
 
     public CommentDto saveComment(Long itemId, Long userId, CommentDto commentDto) {
@@ -241,6 +282,15 @@ public class ItemService {
     private void checkItemOwnerId(Long userId, Long id) {
         if (!Objects.equals(userId, itemRepository.findById(id).get().getOwner().getId())) {
             throw new NotOwnerException("User with id=" + userId + "  is not owner of item with id=" + id);
+        }
+    }
+
+    private void checkFromAndSize(Optional<Integer> from, Optional<Integer> size) {
+        if (from.isPresent() && from.get() < 0) {
+            throw new BadRequestException("Start position must be >= 0, not " + from);
+        }
+        if (size.isPresent() && size.get() <= 0) {
+            throw new BadRequestException("Size must be >= 0, not " + size);
         }
     }
 }

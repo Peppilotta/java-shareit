@@ -40,7 +40,7 @@ public class UserController {
 
     @GetMapping("/{id}")
     public UserDto getUser(@PathVariable long id) {
-        return userService.getUser(id);
+        return userService.getUserDto(id);
     }
 
     @DeleteMapping("/{id}")

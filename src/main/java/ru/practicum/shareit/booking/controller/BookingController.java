@@ -15,6 +15,7 @@ import ru.practicum.shareit.booking.service.BookingService;
 
 import javax.validation.Valid;
 import java.util.List;
+import java.util.Optional;
 
 @RestController
 @RequestMapping("/bookings")
@@ -45,15 +46,19 @@ public class BookingController {
     }
 
     @GetMapping("")
-    public List<BookingDto> getBookingByState(@RequestParam(defaultValue = "ALL", required = false) String state,
-                                              @RequestHeader(USER_ID_HEADER) long userId) {
-        return bookingService.getBookingByState(userId, state);
+    public List<BookingDto> getBookingByState(@RequestHeader(USER_ID_HEADER) long userId,
+                                              @RequestParam(defaultValue = "ALL", required = false) String state,
+                                              @RequestParam(required = false) Optional<Integer> from,
+                                              @RequestParam(required = false) Optional<Integer> size) {
+        return bookingService.getBookingByState(userId, state, from, size);
     }
 
     @GetMapping("/owner")
     public List<BookingDto> getItemsByStateAndOwner
-            (@RequestParam(defaultValue = "ALL", required = false) String state,
-             @RequestHeader(USER_ID_HEADER) long userId) {
-        return bookingService.getBookingByStateAndOwner(userId, state);
+            (@RequestHeader(USER_ID_HEADER) long userId,
+             @RequestParam(defaultValue = "ALL", required = false) String state,
+             @RequestParam(required = false) Optional<Integer> from,
+             @RequestParam(required = false) Optional<Integer> size) {
+        return bookingService.getBookingByStateAndOwner(userId, state, from, size);
     }
 }
