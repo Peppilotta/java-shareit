@@ -60,4 +60,5 @@ public interface BookingRepository extends JpaRepository<Booking, Long> {
             "order by b.start DESC")
     List<Booking> searchByItemOwnerAndStatus(@NonNull Long id,
                                              @NonNull BookingStatus status);
+
 }

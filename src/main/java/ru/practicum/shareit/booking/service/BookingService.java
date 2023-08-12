@@ -101,14 +101,16 @@ public class BookingService {
                 .map(this::toDtoWithItemAndBooker)
                 .collect(Collectors.collectingAndThen(Collectors.toList(), Collections::unmodifiableList));
         if (from.isPresent()) {
-            Integer fromExist = from.get();
+            Integer fromId = from.get();
             int totalItems = bookingDtos.size();
-            int first = (int) (fromExist == 0 ? fromExist : --fromExist);
+            Integer toId = totalItems;
+            log.info("from = {}",fromId);
+            log.info("list length = {}",totalItems);
             if (size.isPresent()) {
-                totalItems = size.get() + first -1;
+                int lastId = size.get() + fromId;
+                toId =  lastId < totalItems ? lastId : totalItems ;
             }
-            log.info("First = {}  and last = {} ",first,totalItems);
-            return bookingDtos.subList(first, totalItems);
+            return bookingDtos.subList(fromId, toId);
         }
         log.info("Bookings for owner id: {} and state: {} returned collection: {}", ownerId, state, bookingDtos);
         return bookingDtos;
@@ -129,14 +131,16 @@ public class BookingService {
                 .map(this::toDtoWithItemAndBooker)
                 .collect(Collectors.collectingAndThen(Collectors.toList(), Collections::unmodifiableList));
         if (from.isPresent()) {
-            Integer fromExist = from.get();
-            int totalItems = (int) (itemRepository.count() + 1);
-            int first = (int) (fromExist >= 1 ? --fromExist : fromExist);
+            Integer fromId = from.get();
+            int totalItems = bookingDtos.size();
+            Integer toId = totalItems;
+            log.info("from = {}",fromId);
+            log.info("list length = {}",totalItems);
             if (size.isPresent()) {
-                totalItems = size.get() + first - 1;
+                int lastId = size.get() + fromId;
+                toId =  lastId < totalItems ? lastId : totalItems ;
             }
-            log.info("First = {}  and last = {} ",first,totalItems);
-            return bookingDtos.subList(first, totalItems);
+            return bookingDtos.subList(fromId, toId);
         }
         log.info("Bookings for owner id: {} and state: {} returned collection: {}", ownerId, state, bookingDtos);
         return bookingDtos;
