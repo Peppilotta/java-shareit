@@ -46,9 +46,9 @@ public class RequestController {
     }
 
     @GetMapping("/all")
-    public List<RequestWithProposalsDto> getRequestsPageable (@RequestHeader(USER_ID_HEADER) Long userId,
-        @RequestParam(required = false) Optional<Integer> from,
-        @RequestParam(required = false) Optional<Integer> size) {
+    public List<RequestWithProposalsDto> getRequestsPageable(@RequestHeader(USER_ID_HEADER) Long userId,
+                                                             @RequestParam(required = false) Optional<Integer> from,
+                                                             @RequestParam(required = false) Optional<Integer> size) {
         return requestService.getPartOfRequests(userId, from, size);
     }
 }

@@ -91,16 +91,15 @@ public class InRepositoryRequestService implements RequestService {
 
     @Override
     public List<RequestWithProposalsDto> getPartOfRequests(Long userId,
-                                        Optional<Integer> from, Optional<Integer> size) {
+                                                           Optional<Integer> from, Optional<Integer> size) {
         checkFromAndSize(from, size);
         checkUserExists(userId);
         QRequest request = QRequest.request;
         JPAQueryFactory queryFactory = new JPAQueryFactory(em);
         long totalItems = requestRepository.count() + 1;
-        Integer fromExist = 0;
+        int fromExist = 0;
         if (from.isPresent()) {
             fromExist = from.get();
-            int first = (int) (fromExist >= 1 ? --fromExist : fromExist);
             if (size.isPresent()) {
                 totalItems = size.get();
             }

@@ -62,7 +62,6 @@ public class ItemService {
     EntityManager em;
 
     public ItemDto createItem(Long userId, ItemDto itemDto) {
-        log.info("New request");
         log.info("Create request for itemDto={} from userId={} ", itemDto, userId);
         checkItemIsAvailable(itemDto);
         checkUserExists(userId);
@@ -73,7 +72,6 @@ public class ItemService {
     }
 
     public ItemDto updateItem(Long userId, Long id, Map<String, Object> updates) {
-        log.debug("New request");
         log.info("Update request for item with id={} from userId={} ", id, userId);
         checkUserExists(userId);
         checkItemExists(id);
@@ -96,7 +94,6 @@ public class ItemService {
     }
 
     public ItemDto getItem(Long userId, Long id) {
-        log.debug("New request");
         log.info("Get request getItemById from userId={} for item with id={}", userId, id);
         checkUserExists(userId);
         checkItemExists(id);
@@ -119,12 +116,13 @@ public class ItemService {
         QItem qItem = QItem.item;
         JPAQueryFactory queryFactory = new JPAQueryFactory(em);
         long totalItems = itemRepository.count() + 1;
-        Integer fromExist = 0;
+        int fromExist = 0;
         if (from.isPresent()) {
             fromExist = from.get();
-            int first = fromExist >= 1 ? --fromExist : fromExist;
+            log.info("fromExist = " + fromExist);
             if (size.isPresent()) {
-                totalItems = size.get();
+                totalItems = Math.min(size.get(), itemRepository.count() + 1);
+                log.info("totalItems = " + totalItems);
             }
         }
         List<ItemDto> itemsDto = queryFactory.selectFrom(qItem)
@@ -148,7 +146,6 @@ public class ItemService {
     }
 
     public ItemDto deleteItem(Long userId, Long id) {
-        log.debug("New request");
         log.info("Delete request for itemId={} from user with id={}", id, userId);
         checkItemExists(id);
         Item item = itemRepository.findById(id).get();
@@ -173,14 +170,14 @@ public class ItemService {
                 .map(itemMapper::toDto)
                 .collect(Collectors.collectingAndThen(Collectors.toList(), Collections::unmodifiableList));
         int totalItems = (int) itemRepository.count() + 1;
-        Integer fromExist = 0;
+        int fromExist;
         if (from.isPresent()) {
             fromExist = from.get();
             int first = fromExist >= 1 ? --fromExist : fromExist;
             if (size.isPresent()) {
                 totalItems = size.get() + first - 1;
             }
-           return itemsDto.subList(first, totalItems);
+            return itemsDto.subList(first, totalItems);
         }
         for (ItemDto itemDto : itemsDto) {
             Long itemDtoId = itemDto.getId();

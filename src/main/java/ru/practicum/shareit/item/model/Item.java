@@ -1,8 +1,10 @@
 package ru.practicum.shareit.item.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Getter;
-import lombok.RequiredArgsConstructor;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 import ru.practicum.shareit.booking.model.Booking;
 import ru.practicum.shareit.comment.model.Comment;
@@ -25,7 +27,9 @@ import java.util.Set;
 @Entity
 @Getter
 @Setter
-@RequiredArgsConstructor
+@AllArgsConstructor
+@NoArgsConstructor
+@Builder(toBuilder = true)
 public class Item {
 
     @Id

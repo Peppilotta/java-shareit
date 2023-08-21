@@ -23,7 +23,6 @@ import ru.practicum.shareit.user.storage.UserRepository;
 import java.time.LocalDateTime;
 import java.util.Arrays;
 import java.util.Collections;
-import java.util.Comparator;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
@@ -101,14 +100,14 @@ public class BookingService {
                 .map(this::toDtoWithItemAndBooker)
                 .collect(Collectors.collectingAndThen(Collectors.toList(), Collections::unmodifiableList));
         if (from.isPresent()) {
-            Integer fromId = from.get();
+            int fromId = from.get();
             int totalItems = bookingDtos.size();
-            Integer toId = totalItems;
-            log.info("from = {}",fromId);
-            log.info("list length = {}",totalItems);
+            int toId = totalItems;
+            log.info("from = {}", fromId);
+            log.info("list length = {}", totalItems);
             if (size.isPresent()) {
                 int lastId = size.get() + fromId;
-                toId =  lastId < totalItems ? lastId : totalItems ;
+                toId = Math.min(lastId, totalItems);
             }
             return bookingDtos.subList(fromId, toId);
         }
@@ -131,14 +130,14 @@ public class BookingService {
                 .map(this::toDtoWithItemAndBooker)
                 .collect(Collectors.collectingAndThen(Collectors.toList(), Collections::unmodifiableList));
         if (from.isPresent()) {
-            Integer fromId = from.get();
+            int fromId = from.get();
             int totalItems = bookingDtos.size();
-            Integer toId = totalItems;
-            log.info("from = {}",fromId);
-            log.info("list length = {}",totalItems);
+            int toId = totalItems;
+            log.info("from = {}", fromId);
+            log.info("list length = {}", totalItems);
             if (size.isPresent()) {
                 int lastId = size.get() + fromId;
-                toId =  lastId < totalItems ? lastId : totalItems ;
+                toId = Math.min(lastId, totalItems);
             }
             return bookingDtos.subList(fromId, toId);
         }

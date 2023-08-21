@@ -1,8 +1,10 @@
 package ru.practicum.shareit.comment.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Getter;
-import lombok.RequiredArgsConstructor;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.user.model.User;
@@ -20,9 +22,11 @@ import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "comments")
-@RequiredArgsConstructor
+@AllArgsConstructor
+@NoArgsConstructor
 @Getter
 @Setter
+@Builder(toBuilder = true)
 public class Comment {
 
     @Id
