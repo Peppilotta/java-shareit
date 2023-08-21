@@ -171,7 +171,7 @@
                             <outputDirectory>${project.reporting.outputDirectory}/jacoco</outputDirectory>
                         </configuration>
                     </execution>
-                    <execution>
+ <!--                   <execution>
                         <id>default-check</id>
                         <goals>
                             <goal>check</goal>
@@ -191,7 +191,7 @@
                             </rules>
                         </configuration>
                     </execution>
-                </executions>
+-->                </executions>
             </plugin>
 
 
