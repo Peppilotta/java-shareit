@@ -1,8 +1,10 @@
 package ru.practicum.shareit.request.dto;
 
 import lombok.Builder;
+import lombok.Data;
 
-@Builder
+@Data
+@Builder(toBuilder = true)
 public class ProposalDto {
 
     private final Long id;
