@@ -75,8 +75,8 @@ class ItemIntegrationTest {
         UserDto userDto = userService.getUserDto(1L);
         ItemDto itemDto = itemService.getItem(1L, 1L);
 
-        assertThat(userDto.getName(), equalTo("Дмитрий1"));
-        assertThat(itemDto.getName(), equalTo("экран"));
+        assertThat(userDto.getName(), equalTo("Dimetrios1"));
+        assertThat(itemDto.getName(), equalTo("screen"));
     }
 
     @Test

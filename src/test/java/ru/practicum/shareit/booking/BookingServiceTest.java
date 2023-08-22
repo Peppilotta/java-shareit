@@ -1,6 +1,7 @@
 package ru.practicum.shareit.booking;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -36,12 +37,13 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.Mockito.when;
 
+@Slf4j
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @ExtendWith(MockitoExtension.class)
 @RequiredArgsConstructor(onConstructor_ = @Autowired)
 class BookingServiceTest {
 
-    LocalDateTime dateTime = LocalDateTime.of(2023, 8, 12, 9, 0, 0, 0);
+    LocalDateTime dateTime = LocalDateTime.of(2023, 8, 22, 9, 0, 0, 0);
 
     @Mock
     private BookingRepository bookingRepository;
@@ -92,6 +94,7 @@ class BookingServiceTest {
         when(bookingMapper.toBooking(any())).thenReturn(booking);
         when(bookingMapper.toDto(any())).thenReturn(bookingDto);
         when(bookingRepository.save(any())).thenReturn(booking);
+
         BookingDto expectedBookingDto = bookingService.save(bookingDtoWithId, user.getId());
 
         assertThat(expectedBookingDto.getId(), equalTo(bookingDtoWithId.getId()));

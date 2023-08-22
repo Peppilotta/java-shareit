@@ -18,7 +18,7 @@ import java.util.Set;
 import static org.assertj.core.api.AssertionsForInterfaceTypes.assertThat;
 
 @JsonTest
-public class BookingDtoJsonTest {
+class BookingDtoJsonTest {
 
     LocalDateTime dateTime = LocalDateTime.of(2023, 8, 12, 9, 0, 0, 0);
 

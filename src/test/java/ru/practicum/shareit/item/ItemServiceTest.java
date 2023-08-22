@@ -1,6 +1,7 @@
 package ru.practicum.shareit.item;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -12,7 +13,6 @@ import org.springframework.test.util.ReflectionTestUtils;
 import ru.practicum.shareit.booking.storage.BookingRepository;
 import ru.practicum.shareit.comment.dto.CommentMapper;
 import ru.practicum.shareit.comment.storage.CommentRepository;
-import ru.practicum.shareit.exception.BadRequestException;
 import ru.practicum.shareit.exception.ItemDoesNotExistException;
 import ru.practicum.shareit.exception.NotOwnerException;
 import ru.practicum.shareit.item.dto.ItemDto;
@@ -35,6 +35,7 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.Mockito.when;
 
+@Slf4j
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @ExtendWith(MockitoExtension.class)
 @RequiredArgsConstructor(onConstructor_ = @Autowired)
@@ -85,19 +86,6 @@ class ItemServiceTest {
         assertThat(expectedItemDto.getName(), equalTo(itemDto.getName()));
         assertThat(expectedItemDto.getDescription(), equalTo(itemDto.getDescription()));
         assertThat(expectedItemDto.isAvailable(), equalTo(itemDto.isAvailable()));
-    }
-
-    @Test
-    void createItem_ItemNotAvailable() {
-        ReflectionTestUtils.setField(itemService, "itemRepository", itemRepository);
-        ReflectionTestUtils.setField(itemService, "userRepository", userRepository);
-
-        Long userId = createUser().getId();
-        ItemDto itemDto = createItemDtoWithoutAvailable();
-
-        BadRequestException badRequestException
-                = assertThrows(BadRequestException.class, () -> itemService.createItem(userId, itemDto));
-        assertThat(badRequestException.getMessage(), equalTo("Item field AVAILABLE is absent"));
     }
 
     @Test

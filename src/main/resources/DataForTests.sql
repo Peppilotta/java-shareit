@@ -1,7 +1,7 @@
 INSERT INTO users
     (name, email)
-VALUES ('Дмитрий1', 'dg@rubytech.ru'),
-       ('Дмитрий2', 'do@rubytech.ru'),
+VALUES ('Dimetrios1', 'dg@rubytech.ru'),
+       ('Dimetrios2', 'do@rubytech.ru'),
        ('Сергей', 'st@rubytech.ru'),
        ('Ирина', 'iv@rubytech.ru'),
        ('Тимур', 'tg@rubytech.ru'),
@@ -9,7 +9,7 @@ VALUES ('Дмитрий1', 'dg@rubytech.ru'),
 
 INSERT INTO items
     (name, description, is_available, owner_id)
-VALUES ('экран', 'экран для домашнего кинотеатра', TRUE, 5),
+VALUES ('screen', 'экран для домашнего кинотеатра', TRUE, 5),
        ('телескоп', 'увеличение 100', TRUE, 4),
        ('микроскоп', 'бытовой', TRUE, 4),
        ('насос', 'велосипедный', TRUE, 3),
