@@ -124,7 +124,7 @@ public class InRepositoryRequestService implements RequestService {
         JPAQuery<Item> query = new JPAQuery<>(em);
         QItem qItem = QItem.item;
         return query.from(qItem)
-                .where(qItem.requestId.eq(Math.toIntExact(requestId)))
+                .where(qItem.requestId.eq(requestId))
                 .fetch()
                 .stream()
                 .map(ItemMapper.itemMapper::toDto)
