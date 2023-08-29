@@ -1,10 +1,10 @@
 package ru.practicum.shareit.request.service;
 
+import org.springframework.data.domain.Pageable;
 import ru.practicum.shareit.request.dto.RequestDto;
 import ru.practicum.shareit.request.dto.RequestWithProposalsDto;
 
 import java.util.List;
-import java.util.Optional;
 
 public interface RequestService {
 
@@ -14,5 +14,5 @@ public interface RequestService {
 
     List<RequestWithProposalsDto> getRequests(Long userId);
 
-    List<RequestWithProposalsDto> getPartOfRequests(Long userId, Optional<Integer> from, Optional<Integer> lines);
+    List<RequestWithProposalsDto> getPartOfRequests(Long userId, Pageable pageable);
 }

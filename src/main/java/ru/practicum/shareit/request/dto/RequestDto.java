@@ -13,7 +13,6 @@ import java.time.LocalDateTime;
 @Data
 @Builder(toBuilder = true)
 public class RequestDto {
-    //implements Serializable
     private final Long id;
 
     @NotBlank

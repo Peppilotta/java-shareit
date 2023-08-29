@@ -13,7 +13,6 @@ import java.util.List;
 
 @Data
 public class RequestWithProposalsDto {
-    //implements Serializable
     private final Long id;
 
     @NotBlank

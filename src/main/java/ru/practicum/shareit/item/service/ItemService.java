@@ -1,9 +1,9 @@
 package ru.practicum.shareit.item.service;
 
-import com.querydsl.jpa.impl.JPAQueryFactory;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.Primary;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import ru.practicum.shareit.booking.model.Booking;
 import ru.practicum.shareit.booking.model.BookingStatus;
@@ -19,15 +19,12 @@ import ru.practicum.shareit.item.dto.ItemBookingDto;
 import ru.practicum.shareit.item.dto.ItemDto;
 import ru.practicum.shareit.item.dto.ItemMapper;
 import ru.practicum.shareit.item.model.Item;
-import ru.practicum.shareit.item.model.QItem;
 import ru.practicum.shareit.item.storage.ItemRepository;
 import ru.practicum.shareit.user.dto.UserMapper;
 import ru.practicum.shareit.user.model.User;
 import ru.practicum.shareit.user.storage.UserRepository;
 
-import javax.persistence.EntityManager;
 import javax.persistence.EntityNotFoundException;
-import javax.persistence.PersistenceContext;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -57,9 +54,6 @@ public class ItemService {
     private final ItemMapper itemMapper;
 
     private final UserMapper userMapper;
-
-    @PersistenceContext
-    EntityManager em;
 
     public ItemDto createItem(Long userId, ItemDto itemDto) {
         log.info("Create request for itemDto={} from userId={} ", itemDto, userId);
@@ -110,30 +104,13 @@ public class ItemService {
         return itemDto;
     }
 
-    public List<ItemDto> getItems(Long userId, Optional<Integer> from, Optional<Integer> size) {
-        checkFromAndSize(from, size);
+    public List<ItemDto> getItems(Long userId, Pageable pageable) {
         checkUserExists(userId);
-        QItem qItem = QItem.item;
-        JPAQueryFactory queryFactory = new JPAQueryFactory(em);
-        long totalItems = itemRepository.count() + 1;
-        int fromExist = 0;
-        if (from.isPresent()) {
-            fromExist = from.get();
-            log.info("fromExist = " + fromExist);
-            if (size.isPresent()) {
-                totalItems = Math.min(size.get(), itemRepository.count() + 1);
-                log.info("totalItems = " + totalItems);
-            }
-        }
-        List<ItemDto> itemsDto = queryFactory.selectFrom(qItem)
-                .where(qItem.owner.id.in(userId))
-                .orderBy(qItem.id.asc())
-                .limit(totalItems)
-                .offset(fromExist)
-                .fetch()
+        List<ItemDto> itemsDto = itemRepository.findByOwnerIdOrderById(userId, pageable)
+                .getContent()
                 .stream()
                 .map(itemMapper::toDto)
-                .collect(Collectors.toList());
+                .collect(Collectors.collectingAndThen(Collectors.toList(), Collections::unmodifiableList));
         for (ItemDto itemDto : itemsDto) {
             Long itemDtoId = itemDto.getId();
             if (Objects.equals(userId, itemDto.getOwner().getId())) {
@@ -141,8 +118,7 @@ public class ItemService {
                 itemDto.setNextBooking(getFutureBookingFotItem(itemDtoId));
             }
         }
-        return itemsDto.stream()
-                .collect(Collectors.collectingAndThen(Collectors.toList(), Collections::unmodifiableList));
+        return itemsDto;
     }
 
     public ItemDto deleteItem(Long userId, Long id) {
@@ -155,29 +131,30 @@ public class ItemService {
         return itemDto;
     }
 
-    public List<ItemDto> searchItem(Long userId, String keyWord, Optional<Integer> from, Optional<Integer> size) {
-        log.debug("New request");
+    public List<ItemDto> searchItem(Long userId, String keyWord, Integer from, Integer size) {
         log.info("Get request for item owned by user with id={} and label={}", userId, keyWord);
-        checkFromAndSize(from, size);
         if (keyWord.trim().isEmpty()) {
             return new ArrayList<>();
         }
         checkUserExists(userId);
 
         String query = "%" + keyWord.trim().toLowerCase() + "%";
-        List<ItemDto> itemsDto = itemRepository.findByNameOrDescription(query)
-                .stream()
-                .map(itemMapper::toDto)
-                .collect(Collectors.collectingAndThen(Collectors.toList(), Collections::unmodifiableList));
-        int totalItems = (int) itemRepository.count() + 1;
-        int fromExist;
-        if (from.isPresent()) {
-            fromExist = from.get();
-            int first = fromExist >= 1 ? --fromExist : fromExist;
-            if (size.isPresent()) {
-                totalItems = size.get() + first - 1;
-            }
-            return itemsDto.subList(first, totalItems);
+
+        int firstId = Objects.isNull(from) ? 0 : from;
+        List<ItemDto> itemsDto = new ArrayList<>();
+        if (Objects.isNull(size)) {
+            itemsDto.addAll(itemRepository.findByNameOrDescription(query)
+                    .stream()
+                    .map(itemMapper::toDto)
+                    .collect(Collectors.collectingAndThen(Collectors.toList(), Collections::unmodifiableList)));
+        } else {
+            List<Item> items = itemRepository.findByNameOrDescription(query);
+            int lastId = Math.min((from + size - 1), items.size());
+            itemsDto.addAll(items
+                    .stream()
+                    .map(itemMapper::toDto)
+                    .collect(Collectors.collectingAndThen(Collectors.toList(), Collections::unmodifiableList))
+                    .subList(firstId, lastId));
         }
         for (ItemDto itemDto : itemsDto) {
             Long itemDtoId = itemDto.getId();
@@ -186,12 +163,10 @@ public class ItemService {
                 itemDto.setNextBooking(getFutureBookingFotItem(itemDtoId));
             }
         }
-
         return itemsDto;
     }
 
     public CommentDto saveComment(Long itemId, Long userId, CommentDto commentDto) {
-        log.debug("New request");
         log.info("Create comment request for itemId={} from userId={} and comment={}", itemId, userId, commentDto);
         checkUserExists(userId);
         checkCommentEmpty(commentDto);
@@ -252,6 +227,13 @@ public class ItemService {
         return item.orElseThrow(() -> new EntityNotFoundException("item with id: " + id + " doesn't exists"));
     }
 
+    public List<ItemDto> getItemsDtoByRequestId(Long requestId) {
+        return itemRepository.findAllByRequestIdOrderById(requestId)
+                .stream()
+                .map(ItemMapper.itemMapper::toDto)
+                .collect(Collectors.toList());
+    }
+
     private void checkUserExists(Long id) {
         if (!userRepository.existsById(id)) {
             throw new ItemDoesNotExistException("User with id=" + id + " not exists.");
@@ -279,15 +261,6 @@ public class ItemService {
     private void checkItemOwnerId(Long userId, Long id) {
         if (!Objects.equals(userId, itemRepository.findById(id).get().getOwner().getId())) {
             throw new NotOwnerException("User with id=" + userId + "  is not owner of item with id=" + id);
-        }
-    }
-
-    private void checkFromAndSize(Optional<Integer> from, Optional<Integer> size) {
-        if (from.isPresent() && from.get() < 0) {
-            throw new BadRequestException("Start position must be >= 0, not " + from);
-        }
-        if (size.isPresent() && size.get() <= 0) {
-            throw new BadRequestException("Size must be >= 0, not " + size);
         }
     }
 }

@@ -18,7 +18,7 @@ import static org.assertj.core.api.AssertionsForInterfaceTypes.assertThat;
 @JsonTest
 class ItemDtoJsonTest {
 
-    LocalDateTime dateTime = LocalDateTime.of(2023, 8, 12, 9, 0, 0, 0);
+    private final LocalDateTime dateTime = LocalDateTime.of(2023, 8, 12, 9, 0, 0, 0);
 
     @Autowired
     private JacksonTester<ItemDto> jsonItemDto;

@@ -54,14 +54,12 @@ public class UserService {
     }
 
     public User getUser(Long id) {
-        log.info("New request");
         log.info("GET request - user id={} ", id);
         checkUserExistence(id);
         return userRepository.findById(id).get();
     }
 
     public UserDto deleteUser(Long id) {
-        log.info("New request");
         log.info("Delete request - user id={} ", id);
         checkUserExistence(id);
         User deletedUser = userRepository.findById(id).get();

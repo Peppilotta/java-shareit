@@ -10,12 +10,13 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.util.ReflectionTestUtils;
 import ru.practicum.shareit.exception.ItemDoesNotExistException;
+import ru.practicum.shareit.item.service.ItemService;
 import ru.practicum.shareit.request.dto.RequestDto;
 import ru.practicum.shareit.request.dto.RequestMapper;
 import ru.practicum.shareit.request.model.Request;
 import ru.practicum.shareit.request.repository.RequestRepository;
-import ru.practicum.shareit.request.service.InRepositoryRequestService;
 import ru.practicum.shareit.request.service.RequestService;
+import ru.practicum.shareit.request.service.RequestServiceImpl;
 import ru.practicum.shareit.user.dto.UserDto;
 import ru.practicum.shareit.user.model.User;
 import ru.practicum.shareit.user.service.UserService;
@@ -34,7 +35,7 @@ import static org.mockito.Mockito.when;
 @ExtendWith(MockitoExtension.class)
 @RequiredArgsConstructor(onConstructor_ = @Autowired)
 class RequestServiceTest {
-    LocalDateTime dateTime = LocalDateTime.of(2023, 8, 12, 9, 0, 0, 0);
+    private final LocalDateTime dateTime = LocalDateTime.of(2023, 8, 12, 9, 0, 0, 0);
 
     @Mock
     private UserRepository userRepository;
@@ -46,11 +47,14 @@ class RequestServiceTest {
     private UserService userService;
 
     @Mock
+    private ItemService itemService;
+
+    @Mock
     private RequestRepository requestRepository;
 
     @InjectMocks
     private RequestService requestService =
-            new InRepositoryRequestService(requestRepository, userRepository, requestMapper, userService);
+            new RequestServiceImpl(requestRepository, userRepository, requestMapper, userService, itemService);
 
     @Test
     void save_WrongUserId() {

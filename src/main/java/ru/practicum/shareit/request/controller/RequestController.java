@@ -1,6 +1,9 @@
 package ru.practicum.shareit.request.controller;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -15,8 +18,9 @@ import ru.practicum.shareit.request.dto.RequestWithProposalsDto;
 import ru.practicum.shareit.request.service.RequestService;
 
 import javax.validation.Valid;
+import javax.validation.constraints.Positive;
+import javax.validation.constraints.PositiveOrZero;
 import java.util.List;
-import java.util.Optional;
 
 @RestController
 @RequestMapping("/requests")
@@ -25,7 +29,7 @@ import java.util.Optional;
 public class RequestController {
 
     private static final String USER_ID_HEADER = "X-Sharer-User-Id";
-
+    private static final String REQUEST_DATE_FIELD_NAME = "created";
     private final RequestService requestService;
 
     @PostMapping()
@@ -46,9 +50,12 @@ public class RequestController {
     }
 
     @GetMapping("/all")
-    public List<RequestWithProposalsDto> getRequestsPageable(@RequestHeader(USER_ID_HEADER) Long userId,
-                                                             @RequestParam(required = false) Optional<Integer> from,
-                                                             @RequestParam(required = false) Optional<Integer> size) {
-        return requestService.getPartOfRequests(userId, from, size);
+    public List<RequestWithProposalsDto> getRequestsPageable(
+            @RequestHeader(USER_ID_HEADER) Long userId,
+            @RequestParam(defaultValue = "0") @PositiveOrZero Integer from,
+            @RequestParam(defaultValue = "10") @Positive Integer size) {
+        Pageable pageable = PageRequest.of(from / size, size,
+                Sort.by(Sort.Direction.DESC, REQUEST_DATE_FIELD_NAME));
+        return requestService.getPartOfRequests(userId, pageable);
     }
 }

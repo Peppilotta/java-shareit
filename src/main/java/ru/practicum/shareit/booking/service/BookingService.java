@@ -3,6 +3,7 @@ package ru.practicum.shareit.booking.service;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.Primary;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import ru.practicum.shareit.booking.dto.BookingDto;
 import ru.practicum.shareit.booking.dto.BookingDtoWithId;
@@ -25,7 +26,6 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
-import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Primary
@@ -86,61 +86,33 @@ public class BookingService {
         return toDtoWithItemAndBooker(booking);
     }
 
-    public List<BookingDto> getBookingByState(Long ownerId, String state,
-                                              Optional<Integer> from, Optional<Integer> size) {
+    public List<BookingDto> getBookingByState(Long ownerId, String state, Pageable pageable) {
         log.info("New request get booking by state");
-        checkFromAndSize(from, size);
         checkUserExists(ownerId);
         checkState(state);
         BookingSearchType type = BookingSearchType.valueOf(state);
         BookingSearch bookingSearch = new BookingSearch(bookingRepository);
         List<BookingDto> bookingDtos = bookingSearch
-                .getBookings(ownerId, type)
+                .getBookings(ownerId, type, pageable)
                 .stream()
                 .map(this::toDtoWithItemAndBooker)
                 .collect(Collectors.collectingAndThen(Collectors.toList(), Collections::unmodifiableList));
-        if (from.isPresent()) {
-            int fromId = from.get();
-            int totalItems = bookingDtos.size();
-            int toId = totalItems;
-            log.info("from = {}", fromId);
-            log.info("list length = {}", totalItems);
-            if (size.isPresent()) {
-                int lastId = size.get() + fromId;
-                toId = Math.min(lastId, totalItems);
-            }
-            return bookingDtos.subList(fromId, toId);
-        }
         log.info("Bookings for owner id: {} and state: {} returned collection: {}", ownerId, state, bookingDtos);
         return bookingDtos;
     }
 
-    public List<BookingDto> getBookingByStateAndOwner(Long ownerId, String state,
-                                                      Optional<Integer> from, Optional<Integer> size) {
+    public List<BookingDto> getBookingByStateAndOwner(Long ownerId, String state, Pageable pageable) {
         log.info("New request get booking by state and owner");
         checkUserExists(ownerId);
         checkState(state);
-        checkFromAndSize(from, size);
         BookingSearchType type = BookingSearchType.valueOf(state);
         BookingSearch bookingSearch = new BookingSearch(bookingRepository);
 
         List<BookingDto> bookingDtos = bookingSearch
-                .getBookingsByItemsOwner(ownerId, type)
+                .getBookingsByItemsOwner(ownerId, type, pageable)
                 .stream()
                 .map(this::toDtoWithItemAndBooker)
                 .collect(Collectors.collectingAndThen(Collectors.toList(), Collections::unmodifiableList));
-        if (from.isPresent()) {
-            int fromId = from.get();
-            int totalItems = bookingDtos.size();
-            int toId = totalItems;
-            log.info("from = {}", fromId);
-            log.info("list length = {}", totalItems);
-            if (size.isPresent()) {
-                int lastId = size.get() + fromId;
-                toId = Math.min(lastId, totalItems);
-            }
-            return bookingDtos.subList(fromId, toId);
-        }
         log.info("Bookings for owner id: {} and state: {} returned collection: {}", ownerId, state, bookingDtos);
         return bookingDtos;
     }
@@ -222,15 +194,6 @@ public class BookingService {
                 .collect(Collectors.toList());
         if (!types.contains(state)) {
             throw new BadRequestException("Unknown state: UNSUPPORTED_STATUS");
-        }
-    }
-
-    private void checkFromAndSize(Optional<Integer> from, Optional<Integer> size) {
-        if (from.isPresent() && from.get() < 0) {
-            throw new BadRequestException("Start position must be >= 0, not " + from);
-        }
-        if (size.isPresent() && size.get() <= 0) {
-            throw new BadRequestException("Size must be >= 0, not " + size);
         }
     }
 }

@@ -64,7 +64,7 @@ class ItemControllerTest {
 
         ItemDto itemDto = createItemDto();
         List<ItemDto> expectedItems = List.of(itemDto);
-        when(itemService.getItems(anyLong(), any(), any())).thenReturn(expectedItems);
+        when(itemService.getItems(anyLong(), any())).thenReturn(expectedItems);
         mockMvc.perform(get("/items")
                         .characterEncoding(StandardCharsets.UTF_8)
                         .contentType(MediaType.APPLICATION_JSON)

@@ -20,7 +20,6 @@ import ru.practicum.shareit.user.storage.UserRepository;
 
 import javax.transaction.Transactional;
 import java.util.List;
-import java.util.Optional;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
@@ -95,7 +94,7 @@ class ItemIntegrationTest {
 
         ReflectionTestUtils.setField(itemService, "bookingRepository", bookingRepository);
 
-        List<ItemDto> itemsDto = itemService.searchItem(1L, "бытОВой", Optional.empty(), Optional.empty());
+        List<ItemDto> itemsDto = itemService.searchItem(1L, "бытОВой", 0, 5);
 
         assertThat(itemsDto, hasSize(2));
         assertThat(itemsDto.get(0).getName(), equalTo("микроскоп"));

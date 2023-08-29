@@ -42,8 +42,7 @@ import static org.mockito.Mockito.when;
 @ExtendWith(MockitoExtension.class)
 @RequiredArgsConstructor(onConstructor_ = @Autowired)
 class BookingServiceTest {
-
-    LocalDateTime dateTime = LocalDateTime.of(2023, 8, 22, 9, 0, 0, 0);
+    private final LocalDateTime dateTime = LocalDateTime.now();
 
     @Mock
     private BookingRepository bookingRepository;

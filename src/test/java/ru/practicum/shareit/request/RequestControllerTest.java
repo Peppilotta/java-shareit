@@ -34,7 +34,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @WebMvcTest(controllers = RequestController.class)
 class RequestControllerTest {
 
-    LocalDateTime dateTime = LocalDateTime.of(2023, 8, 12, 9, 0, 0, 0);
+    private final LocalDateTime dateTime = LocalDateTime.of(2023, 8, 12, 9, 0, 0, 0);
 
     @Autowired
     private ObjectMapper mapper;
@@ -89,7 +89,7 @@ class RequestControllerTest {
         RequestWithProposalsDto requestWithProposalsDto = createRequestWithProposalsDto();
         List<RequestWithProposalsDto> requests = List.of(requestWithProposalsDto);
 
-        when(requestService.getPartOfRequests(anyLong(), any(), any())).thenReturn(requests);
+        when(requestService.getPartOfRequests(anyLong(), any())).thenReturn(requests);
         mockMvc.perform(get("/requests/all")
                         .characterEncoding(StandardCharsets.UTF_8)
                         .contentType(MediaType.APPLICATION_JSON)
