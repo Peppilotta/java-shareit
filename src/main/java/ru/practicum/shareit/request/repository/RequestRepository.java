@@ -13,7 +13,7 @@ import java.util.List;
 @Repository
 public interface RequestRepository extends JpaRepository<Request, Long>, JpaSpecificationExecutor<Request> {
 
-    @Query("select r from Request r where r.requester.id <> ?1 order by r.created desc")
+    @Query("select r from Request r where r.requester.id <> :id order by r.created desc")
     Page<Request> getAllCreatedByOtherOrderByCreatedDesc(Long id, Pageable page);
 
     List<Request> getAllByRequesterIdOrderByCreatedDesc(Long requesterId);

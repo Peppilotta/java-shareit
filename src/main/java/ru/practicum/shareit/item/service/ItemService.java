@@ -106,7 +106,7 @@ public class ItemService {
 
     public List<ItemDto> getItems(Long userId, Pageable pageable) {
         checkUserExists(userId);
-        List<ItemDto> itemsDto = itemRepository.findByOwnerIdOrderById(userId, pageable)
+        List<ItemDto> itemsDto = itemRepository.findByOwnerId(userId, pageable)
                 .getContent()
                 .stream()
                 .map(itemMapper::toDto)
@@ -228,7 +228,7 @@ public class ItemService {
     }
 
     public List<ItemDto> getItemsDtoByRequestId(Long requestId) {
-        return itemRepository.findAllByRequestIdOrderById(requestId)
+        return itemRepository.findByRequestIdOrderById(requestId)
                 .stream()
                 .map(ItemMapper.itemMapper::toDto)
                 .collect(Collectors.toList());

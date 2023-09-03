@@ -26,7 +26,7 @@ import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.hasSize;
 
 @Transactional
-@SpringBootTest(properties = "db.name=test", webEnvironment = SpringBootTest.WebEnvironment.NONE)
+@SpringBootTest(properties = {"db.name=test"}, webEnvironment = SpringBootTest.WebEnvironment.NONE)
 @RequiredArgsConstructor(onConstructor_ = @Autowired)
 @Sql(scripts = {"classpath:./schema.sql", "classpath:./DataForTests.sql"},
         executionPhase = Sql.ExecutionPhase.BEFORE_TEST_METHOD)
