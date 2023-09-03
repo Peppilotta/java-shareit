@@ -23,13 +23,11 @@ public class UserService {
     private final UserMapper userMapper;
 
     public UserDto create(UserDto user) {
-        log.info("New request");
         log.info("Create request for user {}", user);
         return userMapper.toDto(userRepository.save(userMapper.toUser(user)));
     }
 
     public UserDto update(Long id, Map<String, Object> updates) {
-        log.info("New request");
         log.info("Update request for user with id={}", id);
         checkUserExistence(id);
         User user = userRepository.findById(id).get();
@@ -44,7 +42,6 @@ public class UserService {
     }
 
     public List<UserDto> getUsers() {
-        log.info("New request");
         log.info("GET request - all users");
         return userRepository.findAll()
                 .stream()
@@ -52,15 +49,17 @@ public class UserService {
                 .collect(Collectors.toList());
     }
 
-    public UserDto getUser(Long id) {
-        log.info("New request");
+    public UserDto getUserDto(Long id) {
+        return userMapper.toDto(getUser(id));
+    }
+
+    public User getUser(Long id) {
         log.info("GET request - user id={} ", id);
         checkUserExistence(id);
-        return userMapper.toDto(userRepository.findById(id).get());
+        return userRepository.findById(id).get();
     }
 
     public UserDto deleteUser(Long id) {
-        log.info("New request");
         log.info("Delete request - user id={} ", id);
         checkUserExistence(id);
         User deletedUser = userRepository.findById(id).get();

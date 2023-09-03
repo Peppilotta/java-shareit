@@ -1,5 +1,9 @@
 package ru.practicum.shareit.booking.controller;
 
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -14,12 +18,17 @@ import ru.practicum.shareit.booking.dto.BookingDtoWithId;
 import ru.practicum.shareit.booking.service.BookingService;
 
 import javax.validation.Valid;
+import javax.validation.constraints.Positive;
+import javax.validation.constraints.PositiveOrZero;
 import java.util.List;
 
 @RestController
 @RequestMapping("/bookings")
+@Validated
 public class BookingController {
     private static final String USER_ID_HEADER = "X-Sharer-User-Id";
+    private static final String BOOKING_DATE_FIELD_NAME = "start";
+
     private final BookingService bookingService;
 
     public BookingController(BookingService bookingService) {
@@ -45,15 +54,24 @@ public class BookingController {
     }
 
     @GetMapping("")
-    public List<BookingDto> getBookingByState(@RequestParam(defaultValue = "ALL", required = false) String state,
-                                              @RequestHeader(USER_ID_HEADER) long userId) {
-        return bookingService.getBookingByState(userId, state);
+    public List<BookingDto> getBookingByState(@RequestHeader(USER_ID_HEADER) long userId,
+                                              @RequestParam(defaultValue = "ALL") String state,
+                                              @RequestParam(defaultValue = "0") @PositiveOrZero Integer from,
+                                              @RequestParam(defaultValue = "10") @Positive Integer size) {
+        Pageable pageable = PageRequest.of(from / size, size,
+                Sort.by(Sort.Direction.DESC, BOOKING_DATE_FIELD_NAME));
+
+        return bookingService.getBookingByState(userId, state, pageable);
     }
 
     @GetMapping("/owner")
     public List<BookingDto> getItemsByStateAndOwner
-            (@RequestParam(defaultValue = "ALL", required = false) String state,
-             @RequestHeader(USER_ID_HEADER) long userId) {
-        return bookingService.getBookingByStateAndOwner(userId, state);
+            (@RequestHeader(USER_ID_HEADER) long userId,
+             @RequestParam(defaultValue = "ALL") String state,
+             @RequestParam(defaultValue = "0") @PositiveOrZero Integer from,
+             @RequestParam(defaultValue = "10") @Positive Integer size) {
+        Pageable pageable = PageRequest.of(from / size, size,
+                Sort.by(Sort.Direction.DESC, BOOKING_DATE_FIELD_NAME));
+        return bookingService.getBookingByStateAndOwner(userId, state, pageable);
     }
 }

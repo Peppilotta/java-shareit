@@ -1,6 +1,10 @@
 package ru.practicum.shareit.item.controller;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
@@ -16,21 +20,30 @@ import ru.practicum.shareit.item.dto.ItemDto;
 import ru.practicum.shareit.item.service.ItemService;
 
 import javax.validation.Valid;
+import javax.validation.constraints.Positive;
+import javax.validation.constraints.PositiveOrZero;
 import java.util.List;
 import java.util.Map;
 
 @RestController
 @RequestMapping("/items")
 @RequiredArgsConstructor
+@Validated
 public class ItemController {
 
     private static final String USER_ID_HEADER = "X-Sharer-User-Id";
 
+    private static final String ITEM_ID_FIELD_NAME = "id";
+
     private final ItemService itemService;
 
     @GetMapping
-    public List<ItemDto> getItems(@RequestHeader(USER_ID_HEADER) long userId) {
-        return itemService.getItems(userId);
+    public List<ItemDto> getItems(@RequestHeader(USER_ID_HEADER) long userId,
+                                  @RequestParam(defaultValue = "0") @PositiveOrZero Integer from,
+                                  @RequestParam(defaultValue = "10") @Positive Integer size) {
+        Pageable pageable = PageRequest.of(from / size, size,
+                Sort.by(Sort.Direction.ASC, ITEM_ID_FIELD_NAME));
+        return itemService.getItems(userId, pageable);
     }
 
     @GetMapping("/{itemId}")
@@ -57,8 +70,11 @@ public class ItemController {
     }
 
     @GetMapping("/search")
-    public List<ItemDto> search(@RequestHeader(USER_ID_HEADER) long userId, @RequestParam String text) {
-        return itemService.searchItem(userId, text);
+    public List<ItemDto> search(@RequestHeader(USER_ID_HEADER) long userId,
+                                @RequestParam(required = false) @PositiveOrZero Integer from,
+                                @RequestParam(required = false) @Positive Integer size,
+                                @RequestParam String text) {
+        return itemService.searchItem(userId, text, from, size);
     }
 
     @PostMapping("/{itemId}/comment")
