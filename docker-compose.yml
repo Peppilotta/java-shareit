@@ -5,19 +5,17 @@ services:
     image: amazoncorretto:11-alpine-jdk
     container_name: shareit_gateway
     ports:
-      - "8080:8080"
-      - "8123:8123"
+       - "8123:8123"
     depends_on:
       - server
     environment:
-      - SHAREIT_SERVER_URL=http://server:9090
+      - SHAREIT_SERVER_URL=http://server:9123
 
   server:
     build: ./server
     image: amazoncorretto:11-alpine-jdk
     container_name: shareit_server
     ports:
-      - "9090:9090"
       - "9123:9123"
     depends_on:
       - db

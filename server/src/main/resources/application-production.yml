@@ -4,12 +4,13 @@ logging:
       practicum:
         shareit: debug
 server:
-  port: 9090
+  port: 9123
+spring:
   datasource:
-    driverClassName: org.postgresql.Driver
     url: jdbc:postgresql://localhost:5432/shareit
     username: root
     password: root
+    driverClassName: org.postgresql.Driver
   jpa:
     hibernate:
       ddl-auto: none
@@ -21,7 +22,3 @@ server:
   sql:
     init:
       mode: always
-  spring:
-    groovy:
-      template:
-        check-template-location: false
