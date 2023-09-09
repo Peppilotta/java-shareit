@@ -80,9 +80,8 @@ public class ItemController {
     }
 
     @PostMapping("/{itemId}/comment")
-    public CommentDto postComment
-            (@PathVariable Long itemId, @Valid @RequestBody CommentDto commentDto,
-             @RequestHeader(USER_ID_HEADER) Long userId) {
+    public CommentDto postComment(@PathVariable Long itemId, @Valid @RequestBody CommentDto commentDto,
+                                  @RequestHeader(USER_ID_HEADER) Long userId) {
         return itemService.saveComment(itemId, userId, commentDto);
     }
 }

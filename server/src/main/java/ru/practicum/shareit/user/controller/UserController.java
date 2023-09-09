@@ -1,7 +1,6 @@
 package ru.practicum.shareit.user.controller;
 
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -22,14 +21,12 @@ import java.util.Map;
 @RequestMapping(path = "/users")
 @RequiredArgsConstructor
 @Validated
-@Slf4j
 public class UserController {
 
     private final UserService userService;
 
     @PostMapping
     public UserDto create(@RequestBody @Valid final UserDto userDto) {
-        log.info("Server-----------UserDto------------- = {}", userDto.toString());
         return userService.create(userDto);
     }
 

@@ -19,6 +19,7 @@ import ru.practicum.shareit.item.dto.ItemMapper;
 import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.item.storage.ItemRepository;
 import ru.practicum.shareit.user.dto.UserMapper;
+import ru.practicum.shareit.user.model.User;
 import ru.practicum.shareit.user.storage.UserRepository;
 
 import java.time.LocalDateTime;
@@ -121,8 +122,8 @@ public class BookingService {
         Booking booking = bookingMapper.toBooking(bookingDto);
         Long itemId = bookingDto.getItemId();
         checkItemExists(itemId);
-        booking.setItem(itemRepository.findById(itemId).get());
-        booking.setBooker(userRepository.findById(userId).get());
+        booking.setItem(itemRepository.findById(itemId).orElseGet(Item::new));
+        booking.setBooker(userRepository.findById(userId).orElseGet(User::new));
         return booking;
     }
 
@@ -144,7 +145,7 @@ public class BookingService {
         checkUserExists(requesterId);
         Long itemId = booking.getItem().getId();
         checkItemExists(itemId);
-        Item item = itemRepository.findById(itemId).get();
+        Item item = itemRepository.findById(itemId).orElseGet(Item::new);
         if (Objects.equals(booking.getStart(), null)) {
             throw new BadRequestException("Booking start should be not null");
         }

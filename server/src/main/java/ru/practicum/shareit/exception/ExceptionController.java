@@ -47,6 +47,7 @@ public class ExceptionController {
                 .status(HttpStatus.BAD_REQUEST)
                 .body(new ErrorResponse(e.getMessage()));
     }
+
     @ExceptionHandler
     public ResponseEntity<ErrorResponse> handleConflictException(final ConflictException e) {
         log.warn(e.getMessage());

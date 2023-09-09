@@ -91,7 +91,7 @@ public class ItemService {
         log.info("Get request getItemById from userId={} for item with id={}", userId, id);
         checkUserExists(userId);
         checkItemExists(id);
-        Item item = itemRepository.findById(id).get();
+        Item item = itemRepository.findById(id).orElseGet(Item::new);
         ItemDto itemDto = itemMapper.toDto(item);
         log.debug("Get request getItemById - map comments to ItemDto");
         itemDto.setComments(commentMapper.map(item.getItemComments()));
@@ -124,7 +124,7 @@ public class ItemService {
     public ItemDto deleteItem(Long userId, Long id) {
         log.info("Delete request for itemId={} from user with id={}", id, userId);
         checkItemExists(id);
-        Item item = itemRepository.findById(id).get();
+        Item item = itemRepository.findById(id).orElseGet(Item::new);
         ItemDto itemDto = itemMapper.toDto(item);
         itemRepository.delete(item);
         log.debug("Item deleted");
@@ -175,10 +175,10 @@ public class ItemService {
         User author = user.orElse(null);
         Optional<Item> itemOptional = itemRepository.findById(itemId);
         Item item = itemOptional.orElse(null);
-        if (!bookingRepository.existsByItemIdAndBookerIdAndStatusAndEndIsBefore
-                (itemId, userId, BookingStatus.APPROVED, LocalDateTime.now())) {
-            throw new BadRequestException
-                    ("error while trying to add comment to item which hasn't finished booking by user");
+        if (!bookingRepository.existsByItemIdAndBookerIdAndStatusAndEndIsBefore(itemId,
+                userId, BookingStatus.APPROVED, LocalDateTime.now())) {
+            throw new BadRequestException("error while trying to add comment to item " +
+                    "which hasn't finished booking by user");
         }
         Comment comment = commentMapper.toComment(commentDto);
         comment.setAuthor(author);
@@ -259,7 +259,8 @@ public class ItemService {
     }
 
     private void checkItemOwnerId(Long userId, Long id) {
-        if (!Objects.equals(userId, itemRepository.findById(id).get().getOwner().getId())) {
+        Optional<Item> maybeItem = itemRepository.findById(id);
+        if (!Objects.equals(userId, maybeItem.map(item -> item.getOwner().getId()).orElse(0L))) {
             throw new NotOwnerException("User with id=" + userId + "  is not owner of item with id=" + id);
         }
     }

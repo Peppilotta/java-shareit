@@ -66,11 +66,10 @@ public class BookingController {
     }
 
     @GetMapping("/owner")
-    public List<BookingDto> getBookingsByStateAndOwner
-            (@RequestHeader(USER_ID_HEADER) long userId,
-             @RequestParam(defaultValue = "ALL") String state,
-             @RequestParam(defaultValue = "0") @PositiveOrZero Integer from,
-             @RequestParam(defaultValue = "10") @Positive Integer size) {
+    public List<BookingDto> getBookingsByStateAndOwner(@RequestHeader(USER_ID_HEADER) long userId,
+                                                       @RequestParam(defaultValue = "ALL") String state,
+                                                       @RequestParam(defaultValue = "0") @PositiveOrZero Integer from,
+                                                       @RequestParam(defaultValue = "10") @Positive Integer size) {
         Pageable pageable = PageRequest.of(from / size, size,
                 Sort.by(Sort.Direction.DESC, BOOKING_DATE_FIELD_NAME));
         return bookingService.getBookingByStateAndOwner(userId, state, pageable);

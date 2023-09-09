@@ -2,7 +2,7 @@ version: '3.8'
 services:
   gateway:
     build: ./gateway
-    image: amazoncorretto:11
+    image: amazoncorretto:11-alpine-jdk
     container_name: shareit_gateway
     ports:
       - "8080:8080"
@@ -13,7 +13,7 @@ services:
 
   server:
     build: ./server
-    image: amazoncorretto:11
+    image: amazoncorretto:11-alpine-jdk
     container_name: shareit_server
     ports:
       - "9090:9090"
