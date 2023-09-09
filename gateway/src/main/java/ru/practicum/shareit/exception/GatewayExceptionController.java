@@ -17,12 +17,4 @@ public class GatewayExceptionController {
                 .status(HttpStatus.BAD_REQUEST)
                 .body(new ErrorResponseGateway(e.getMessage()));
     }
-
-    @ExceptionHandler
-    public ResponseEntity<ErrorResponseGateway> handleUserHeaderException(final UserHeaderException e) {
-        log.warn(e.getMessage());
-        return ResponseEntity
-                .status(HttpStatus.INTERNAL_SERVER_ERROR)
-                .body(new ErrorResponseGateway(e.getMessage()));
-    }
 }
