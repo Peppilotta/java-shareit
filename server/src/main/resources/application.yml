@@ -4,3 +4,4 @@ spring:
       local: test
       production: production
     default: production
+    active: production

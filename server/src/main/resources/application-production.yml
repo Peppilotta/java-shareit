@@ -1,16 +1,12 @@
+
 logging:
   level:
     ru:
       practicum:
         shareit: debug
 server:
-  port: 9123
+  port: 9090
 spring:
-  datasource:
-    url: jdbc:postgresql://localhost:5432/shareit
-    username: root
-    password: root
-    driverClassName: org.postgresql.Driver
   jpa:
     hibernate:
       ddl-auto: none
@@ -22,3 +18,9 @@ spring:
   sql:
     init:
       mode: always
+  application:
+    name: "shareit-server"
+  datasource:
+    url: "jdbc:postgresql://${DB_HOST}:${DB_PORT}/${DB_NAME}"
+    username: root
+    password: root

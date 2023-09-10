@@ -1,5 +1,5 @@
 server:
-  port: 8123
+  port: 8080
 
 shareit-server:
-  url: http://localhost:9123
+  url: "http://localhost:9090"

@@ -87,6 +87,30 @@ class BookingControllerTest {
     }
 
     @Test
+    void getBookingByStateAndOwner_ShouldReturnList() throws Exception {
+        ReflectionTestUtils.setField(bookingController, "bookingService", bookingService);
+
+        BookingDto bookingDto = createBookingDto();
+        List<BookingDto> expectedItems = List.of(bookingDto);
+        when(bookingService.getBookingByStateAndOwner(anyLong(), any(), any())).thenReturn(expectedItems);
+        mockMvc.perform(get("/bookings/owner")
+                        .characterEncoding(StandardCharsets.UTF_8)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .accept(MediaType.ALL)
+                        .param("from", "3")
+                        .param("size", "5")
+                        .header("X-Sharer-User-Id", "1")
+                )
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$", hasSize(1)))
+                .andExpect(jsonPath("$[0].booker.id").value(equalTo(bookingDto.getBooker().getId()), Long.class))
+                .andExpect(jsonPath("$[0].item.id").value(equalTo(bookingDto.getItem().getId()), Long.class))
+                .andExpect(jsonPath("$[0].status", equalTo(bookingDto.getStatus().toString())))
+                .andExpect(jsonPath("$[0].id").value(equalTo(bookingDto.getId()), Long.class));
+    }
+
+
+    @Test
     void create_StandardBehavior() throws Exception {
         BookingDto bookingDto = createBookingDto();
         when(bookingService.save(any(), anyLong())).thenReturn(bookingDto);
