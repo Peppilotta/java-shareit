@@ -13,7 +13,7 @@ services:
     build: ./server
     container_name: shareit_server
     ports:
-      - "9123:9123"
+      - "9090:9090"
     depends_on:
       - db
     environment:
@@ -26,10 +26,10 @@ services:
     build: ./gateway
     container_name: shareit_gateway
     ports:
-      - "8123:8123"
+      - "8080:8080"
     depends_on:
       - server
     environment:
-      - SHAREIT_SERVER_URL=http://server:9123
+      - SHAREIT_SERVER_URL=http://server:9090
 
 
