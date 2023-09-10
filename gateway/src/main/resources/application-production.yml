@@ -1,0 +1,5 @@
+server:
+  port: 8123
+
+shareit-server:
+  url: http://localhost:9123
