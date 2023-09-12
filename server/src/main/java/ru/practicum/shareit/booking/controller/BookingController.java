@@ -35,7 +35,7 @@ public class BookingController {
         this.bookingService = bookingService;
     }
 
-    @PostMapping()
+    @PostMapping
     public BookingDto create(@Valid @RequestBody BookingDtoWithId bookingCreateDto,
                              @RequestHeader(USER_ID_HEADER) long userId) {
         return bookingService.save(bookingCreateDto, userId);
@@ -54,7 +54,7 @@ public class BookingController {
         return bookingService.getBooking(userId, bookingId);
     }
 
-    @GetMapping("")
+    @GetMapping
     public List<BookingDto> getBookingsByState(@RequestHeader(USER_ID_HEADER) long userId,
                                                @RequestParam(defaultValue = "ALL") String state,
                                                @RequestParam(defaultValue = "0") @PositiveOrZero Integer from,

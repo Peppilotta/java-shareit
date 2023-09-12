@@ -35,11 +35,10 @@ public class UserService {
         User user = userRepository.findById(id).get();
         if (updates.containsKey("email")) {
             String email = String.valueOf(updates.get("email"));
-            if (!Objects.equals(email, user.getEmail()) && userRepository.existsByEmail(user.getEmail())) {
-                user.setEmail(email);
-            } else {
+            if (!Objects.equals(email, user.getEmail()) && userRepository.existsByEmail(email)) {
                 throw new ConflictException("User with email=" + email + " exists");
             }
+            user.setEmail(email);
         }
         if (updates.containsKey("name")) {
             user.setName(String.valueOf(updates.get("name")));

@@ -1,6 +1,7 @@
 package ru.practicum.shareit.user;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -30,6 +31,7 @@ import static org.mockito.Mockito.when;
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @ExtendWith(MockitoExtension.class)
 @RequiredArgsConstructor(onConstructor_ = @Autowired)
+@Slf4j
 class UserServiceTest {
     @Mock
     private UserRepository userRepository;
@@ -175,10 +177,11 @@ class UserServiceTest {
 
         User user = createUser();
         User updatedUser = createUser();
-        updatedUser.setName(String.valueOf(updates.get("email")));
+        updatedUser.setEmail(String.valueOf(updates.get("email")));
         UserDto updatedUserDto = createUserDto();
-        updatedUserDto.setName(String.valueOf(updates.get("email")));
+        updatedUserDto.setEmail(String.valueOf(updates.get("email")));
         when(userRepository.findById(anyLong())).thenReturn(Optional.of(user));
+        when(userRepository.existsByEmail(any())).thenReturn(false);
         when(userRepository.save(any())).thenReturn(updatedUser);
         when(userMapper.toDto(any())).thenReturn(updatedUserDto);
 

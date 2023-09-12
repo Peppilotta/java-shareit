@@ -5,6 +5,7 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import lombok.ToString;
 import ru.practicum.shareit.comment.model.Comment;
 import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.request.model.Request;
@@ -24,6 +25,7 @@ import java.util.Set;
 @Table(name = "users")
 @Getter
 @Setter
+@ToString
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder(toBuilder = true)
