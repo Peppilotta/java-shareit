@@ -29,7 +29,7 @@ public class GatewayRequestController {
     private static final String USER_ID_HEADER = "X-Sharer-User-Id";
     private final RequestClient requestClient;
 
-    @PostMapping()
+    @PostMapping
     public ResponseEntity<Object> create(@RequestHeader(USER_ID_HEADER) Long userId,
                                          @Valid @RequestBody RequestInputDto requestDto) {
         log.info("Add request for item with description = {} from user with id = {}", requestDto.toString(), userId);
@@ -43,7 +43,7 @@ public class GatewayRequestController {
         return requestClient.getRequest(userId, requestId);
     }
 
-    @GetMapping("")
+    @GetMapping
     public ResponseEntity<Object> getRequests(@RequestHeader(USER_ID_HEADER) Long userId) {
         log.info("Get all requests from user with id = {}", userId);
         return requestClient.getRequests(userId);
