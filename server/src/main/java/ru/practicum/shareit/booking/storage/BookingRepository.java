@@ -27,20 +27,20 @@ public interface BookingRepository extends JpaRepository<Booking, Long> {
 
     @Query("select b from Booking b " +
             "where b.booker.id = :bookerId " +
-            "and b.start < :date " +
-            "and b.end > :date " +
+            "and b.start <= :date " +
+            "and b.end >= :date " +
             "order by b.start DESC")
     Page<Booking> searchByBookerInPresentTime(Long bookerId, LocalDateTime date, Pageable pageable);
 
     @Query("select b from Booking b " +
             "where b.booker.id = :bookerId " +
-            "and b.end < :date " +
+            "and b.end <= :date " +
             "order by b.start DESC")
     Page<Booking> searchByBookerInPastTime(Long bookerId, LocalDateTime date, Pageable pageable);
 
     @Query("select b from Booking b " +
             "where b.booker.id = :bookerId " +
-            "and b.start > :date " +
+            "and b.start >= :date " +
             "order by b.start DESC")
     Page<Booking> searchByBookerInFutureTime(Long bookerId, LocalDateTime date, Pageable pageable);
 
@@ -51,24 +51,28 @@ public interface BookingRepository extends JpaRepository<Booking, Long> {
 
     @Query("select b from Booking b " +
             "where b.item.owner.id = :id " +
-            "and b.end < :date " +
+            "and b.end <= :date " +
             "order by b.start DESC")
     Page<Booking> searchByItemOwnerInPastTime(@NonNull Long id, LocalDateTime date, Pageable pageable);
 
     @Query("select b from Booking b " +
             "where b.item.owner.id = :id " +
-            "and b.start > :date " +
-            "and b.end > :date  " +
+            "and b.start >= :date " +
+            "and b.end >= :date  " +
             "order by b.start DESC")
     Page<Booking> searchBookingsByItemOwnerInFutureTime(@NonNull Long id, LocalDateTime date, Pageable pageable);
 
-    @Query("select b from Booking b where b.item.owner.id = :id and b.start <= :date and b.end >= :date  order by b.start DESC")
+    @Query("select b from Booking b " +
+            "where b.item.owner.id = :id " +
+            "and b.start <= :date " +
+            "and b.end >= :date  " +
+            "order by b.start DESC")
     Page<Booking> searchByItemOwnerInPresentTime(@NonNull Long id, LocalDateTime date, Pageable pageable);
 
     @Query("select b from Booking b " +
             "where b.item.id = :itemId " +
-            "and ((b.start < :end and b.end > :end)" +
-            "or (b.start < :start and b.end > :start) " +
+            "and ((b.start <= :end and b.end > :end)" +
+            "or (b.start <= :start and b.end > :start) " +
             "or (b.start > :start and b.end < :end)) " +
             "order by b.start desc")
     List<Booking> searchByItemIdAndStartAddEnd(@NonNull Long itemId, LocalDateTime start, LocalDateTime end);
