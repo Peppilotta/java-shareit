@@ -11,4 +11,6 @@ public interface UserRepository extends JpaRepository<User, Long> {
 
     @Query("select u from User u where  lower(u.email) = lower(:text)")
     List<User> findByEmail(@Nullable String text);
+
+    Boolean existsByEmail(@Nullable String text);
 }

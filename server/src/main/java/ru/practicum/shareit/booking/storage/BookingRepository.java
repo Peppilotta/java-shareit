@@ -62,10 +62,7 @@ public interface BookingRepository extends JpaRepository<Booking, Long> {
             "order by b.start DESC")
     Page<Booking> searchBookingsByItemOwnerInFutureTime(@NonNull Long id, LocalDateTime date, Pageable pageable);
 
-    @Query("select b from Booking b where b.item.owner.id = :id " +
-            "and b.start < :date " +
-            "and b.end > :date  " +
-            "order by b.start DESC")
+    @Query("select b from Booking b where b.item.owner.id = :id and b.start <= :date and b.end >= :date  order by b.start DESC")
     Page<Booking> searchByItemOwnerInPresentTime(@NonNull Long id, LocalDateTime date, Pageable pageable);
 
     @Query("select b from Booking b " +
